@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Fusion Book</string>
+
+    <!-- NAVIGATION DRAWER -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_edit_profile">Edit profile</string>
+    <string name="nav_logout">Logout</string>
+
+    <!-- LIST -->
+    <string name="add_person">Add new person</string>
+    <string name="list_empty">No one yet! You can add a new person by clicking the + icon.</string>
+</resources>
