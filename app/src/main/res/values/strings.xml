@@ -10,4 +10,20 @@
     <!-- LIST -->
     <string name="add_person">Add new person</string>
     <string name="list_empty">No one yet! You can add a new person by clicking the + icon.</string>
+
+    <!-- ADD / EDIT PERSON -->
+    <string name="title_activity_edit_person">Add / Edit person</string>
+    <string name="label_firstname">Firstname</string>
+    <string name="label_lastname">Lastname</string>
+    <string name="label_birthdate">Date of Birth</string>
+    <string name="label_zipcode">Zip-code</string>
+    <string name="err_msg_firstname">Enter your firstname</string>
+    <string name="err_msg_lastname">Enter your lastname</string>
+    <string name="err_msg_birthdate">Enter your date of birth</string>
+    <string name="err_msg_zipcode">Enter your zip-code</string>
+    <string name="err_msg_zipcode_format">Wrong zip-code format</string>
+    <string name="avatar">Avatar</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+
 </resources>

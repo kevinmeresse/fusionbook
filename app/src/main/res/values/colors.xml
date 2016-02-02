@@ -3,4 +3,12 @@
     <color name="colorPrimary">#ef3f42</color>
     <color name="colorPrimaryDark">#b33033</color>
     <color name="colorAccent">#1dd7a9</color>
+
+    <color name="background">#FAFAFA</color>
+
+    <!-- UI palette (on light background) -->
+    <color name="text_black_primary">#DD000000</color> <!-- Primary text: 87% opacity -->
+    <color name="text_black_secondary">#8A000000</color> <!-- Secondary text: 54% opacity -->
+    <color name="text_black_disabled">#42000000</color> <!-- Disabled and hint text: 26% opacity -->
+    <color name="black_divider">#1E000000</color> <!-- Divider: 12% opacity -->
 </resources>
