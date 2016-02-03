@@ -9,12 +9,13 @@
 
     <!-- LIST -->
     <string name="add_person">Add new person</string>
-    <string name="list_empty">No one yet! You can add a new person by clicking the + icon.</string>
+    <string name="list_empty">Click here to add a new person!</string>
 
     <!-- ADD / EDIT PERSON -->
     <string name="title_activity_edit_person">Add / Edit person</string>
     <string name="label_firstname">Firstname</string>
     <string name="label_lastname">Lastname</string>
+    <string name="label_fullname">Fullname</string>
     <string name="label_birthdate">Date of Birth</string>
     <string name="label_zipcode">Zip-code</string>
     <string name="err_msg_firstname">Enter your firstname</string>

@@ -7,12 +7,16 @@ import io.realm.annotations.PrimaryKey;
 
 public class Person extends RealmObject {
 
+    public static final String EXTRA_PERSON_ID = "extra_person_id";
+
     @PrimaryKey
     private long id;
     private String firstname;
     private String lastname;
     private Date birthdate;
     private String zipcode;
+    private Date createdAt;
+    private Date modifiedAt;
 
     public long getId() {
         return id;
@@ -52,5 +56,21 @@ public class Person extends RealmObject {
 
     public void setZipcode(String zipcode) {
         this.zipcode = zipcode;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(Date modifiedAt) {
+        this.modifiedAt = modifiedAt;
     }
 }

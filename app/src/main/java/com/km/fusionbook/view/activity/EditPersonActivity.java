@@ -209,14 +209,21 @@ public class EditPersonActivity extends AppCompatActivity {
 
         // TODO: Send request to server
 
-        // Create person in Realm
-        realm.beginTransaction();
-        Person person = realm.createObject(Person.class);
+        // Create new person object
+        Person person = new Person();
+        Date now = new Date();
+        person.setId(now.getTime());
         person.setFirstname(inputFirstname.getText().toString().trim());
         person.setLastname(inputLastname.getText().toString().trim());
         person.setBirthdate(birthdate);
         person.setZipcode(inputZipcode.getText().toString().trim());
-        realm.cancelTransaction();
+        person.setCreatedAt(now);
+        person.setModifiedAt(now);
+
+        // Copy the object to Realm
+        realm.beginTransaction();
+        realm.copyToRealm(person);
+        realm.commitTransaction();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             finishAfterTransition();
