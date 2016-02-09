@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+##############################################################################
+##
+##  Generate Debug APK Script
+##
+##############################################################################
+
+rm ./*.apk
+./gradlew --stacktrace assembledebug
+
+user_name=$(whoami)
+
+if (($#==0)); then
+    branch_name=$(git symbolic-ref -q HEAD)
+    branch_name=${branch_name##refs/heads/}
+    branch_name=${branch_name:-HEAD}
+else
+    branch_name=${1}
+fi
+
+#name="fusionbook-"${branch_name}"-staging-${user_name}.apk"
+name="fusionbook-"${branch_name}"-staging.apk"
+
+mv "app/build/outputs/apk/app-debug.apk" $name
