@@ -1,30 +1,52 @@
 <resources>
     <string name="app_name">Fusion Book</string>
 
+    <!-- LOGIN -->
+    <string name="discover">Discover</string>
+    <string name="login_with_facebook">Login with Facebook</string>
+
     <!-- NAVIGATION DRAWER -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_edit_profile">Edit profile</string>
+    <string name="nav_login">Login</string>
     <string name="nav_logout">Logout</string>
+    <string name="anonymous">Discovering User</string>
 
     <!-- LIST -->
     <string name="add_person">Add new person</string>
     <string name="list_empty">Click here to add a new person!</string>
 
+    <!-- SHOW PERSON -->
+    <string name="title_activity_show_person">Person\'s details</string>
+    <string name="label_birthdate">Born on:</string>
+    <string name="label_zipcode">Zip-code:</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+
     <!-- ADD / EDIT PERSON -->
-    <string name="title_activity_edit_person">Add / Edit person</string>
-    <string name="label_firstname">Firstname</string>
-    <string name="label_lastname">Lastname</string>
-    <string name="label_fullname">Fullname</string>
-    <string name="label_birthdate">Date of Birth</string>
-    <string name="label_zipcode">Zip-code</string>
+    <string name="title_activity_edit_person">Edit person</string>
+    <string name="hint_firstname">Firstname</string>
+    <string name="hint_lastname">Lastname</string>
+    <string name="hint_fullname">Fullname</string>
+    <string name="hint_birthdate">Date of Birth</string>
+    <string name="hint_zipcode">Zip-code</string>
     <string name="err_msg_firstname">Enter your firstname</string>
     <string name="err_msg_lastname">Enter your lastname</string>
     <string name="err_msg_birthdate">Enter your date of birth</string>
+    <string name="err_msg_birthdate_past">Date of birth should be in the past</string>
     <string name="err_msg_zipcode">Enter your zip-code</string>
     <string name="err_msg_zipcode_format">Wrong zip-code format</string>
     <string name="avatar">Avatar</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
+
+    <!-- DIALOGS -->
+    <string name="dialog_delete_title">Delete this person?</string>
+    <string name="dialog_delete_message">All this person\'s details will be deleted permanently.</string>
+    <string name="dialog_discover_title">Really?</string>
+    <string name="dialog_discover_message">Your data will only be saved locally. Login to securely save your address book in the cloud and access it on any other device.</string>
+    <string name="dialog_ok">Let\'s do it!</string>
+    <string name="dialog_cancel">Cancel</string>
 
 </resources>

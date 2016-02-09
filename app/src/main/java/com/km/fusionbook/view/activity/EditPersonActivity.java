@@ -1,5 +1,6 @@
 package com.km.fusionbook.view.activity;
 
+import android.content.Intent;
 import android.os.Build;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBar;
@@ -17,10 +18,12 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 
+import com.firebase.client.Firebase;
 import com.km.fusionbook.R;
 import com.km.fusionbook.model.Person;
 import com.km.fusionbook.view.customviews.DatePickerDialog;
 
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Pattern;
@@ -33,8 +36,8 @@ public class EditPersonActivity extends AppCompatActivity {
     private TextInputLayout inputLayoutFirstname, inputLayoutLastname,
             inputLayoutBirthdate, inputLayoutZipcode;
     private Pattern zipcodePattern;
-    private Date birthdate;
     private Realm realm;
+    private Person person;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,22 @@ public class EditPersonActivity extends AppCompatActivity {
 
         // Get the default realm
         realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        Date now = new Date();
+
+        // Retrieve person's ID
+        Intent intent = getIntent();
+        String personId = intent.getStringExtra(Person.EXTRA_PERSON_ID);
+
+        try {
+            person = realm
+                    .where(Person.class)
+                    .equalTo("id", personId)
+                    .findFirst();
+        } catch (Exception e) {
+            // Unable to query local DB
+            // Do nothing
+        }
 
         // Retrieve views
         inputLayoutFirstname = (TextInputLayout) findViewById(R.id.input_layout_firstname);
@@ -72,6 +91,21 @@ public class EditPersonActivity extends AppCompatActivity {
         Button cancelButton = (Button) findViewById(R.id.cancel_button);
         Button saveButton = (Button) findViewById(R.id.save_button);
 
+        // Fill in form fields if person already exists
+        if (person != null) {
+            inputFirstname.setText(person.getFirstname());
+            inputLastname.setText(person.getLastname());
+            inputBirthdate.setText(DateFormat.getDateInstance().format(person.getBirthdate()));
+            inputZipcode.setText(person.getZipcode());
+        } else {
+            if (actionBar != null) {
+                actionBar.setTitle(R.string.add_person);
+            }
+            person = realm.createObject(Person.class);
+            person.setId(Long.toString(now.getTime()));
+            person.setCreatedAt(now.getTime());
+        }
+
         // Listen to text edition
         inputFirstname.addTextChangedListener(new MyTextWatcher(inputFirstname));
         inputLastname.addTextChangedListener(new MyTextWatcher(inputLastname));
@@ -83,20 +117,25 @@ public class EditPersonActivity extends AppCompatActivity {
 
         // ACTIONS
         // Click on birthdate field
-        inputBirthdate.setOnClickListener(new View.OnClickListener() {
+        inputBirthdate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onClick(View v) {
-                DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(birthdate, new android.app.DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        String birth = (monthOfYear + 1) + "/" + dayOfMonth + "/" + year;
-                        inputBirthdate.setText(birth);
-                        Calendar cal = Calendar.getInstance();
-                        cal.set(year, monthOfYear, dayOfMonth);
-                        birthdate = cal.getTime();
-                    }
-                });
-                datePickerDialog.show(EditPersonActivity.this.getSupportFragmentManager(), "datePicker");
+            public void onFocusChange(final View v, boolean hasFocus) {
+                if (hasFocus) {
+                    DatePickerDialog datePickerDialog =
+                            DatePickerDialog.newInstance(person.getBirthdate(),
+                                    new android.app.DatePickerDialog.OnDateSetListener() {
+
+                                        @Override
+                                        public void onDateSet(DatePicker view, int year, int month, int day) {
+                                            Calendar cal = Calendar.getInstance();
+                                            cal.set(year, month, day);
+                                            person.setBirthdate(cal.getTime().getTime());
+                                            inputBirthdate.setText(DateFormat.getDateInstance().format(person.getBirthdate()));
+                                        }
+                                    });
+                    datePickerDialog.show(EditPersonActivity.this.getSupportFragmentManager(),
+                            "datePicker");
+                }
             }
         });
 
@@ -104,6 +143,7 @@ public class EditPersonActivity extends AppCompatActivity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                realm.cancelTransaction();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     finishAfterTransition();
                 } else {
@@ -124,6 +164,12 @@ public class EditPersonActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         if (realm != null) {
+            try {
+                realm.cancelTransaction();
+            } catch (IllegalStateException e) {
+                // Transaction was already committed/cancelled
+                // Do nothing
+            }
             realm.close();
         }
         super.onDestroy();
@@ -132,6 +178,7 @@ public class EditPersonActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            realm.cancelTransaction();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 finishAfterTransition();
             } else {
@@ -140,6 +187,12 @@ public class EditPersonActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        realm.cancelTransaction();
+        super.onBackPressed();
     }
 
     private boolean validateFirstname() {
@@ -171,6 +224,9 @@ public class EditPersonActivity extends AppCompatActivity {
             inputLayoutBirthdate.setError(getString(R.string.err_msg_birthdate));
             requestFocus(inputBirthdate);
             return false;
+        } else if (person.getBirthdate() > (new Date()).getTime()) {
+            inputLayoutBirthdate.setError(getString(R.string.err_msg_birthdate_past));
+            return false;
         } else {
             inputLayoutBirthdate.setErrorEnabled(false);
         }
@@ -200,31 +256,30 @@ public class EditPersonActivity extends AppCompatActivity {
         }
     }
 
-    // Validating form
     private void submitForm() {
+        // Validate form
         if (!validateFirstname() || !validateLastname()
                 || !validateBirthdate() || !validateZipcode()) {
             return;
         }
 
-        // TODO: Send request to server
-
-        // Create new person object
-        Person person = new Person();
-        Date now = new Date();
-        person.setId(now.getTime());
+        // Update person object
         person.setFirstname(inputFirstname.getText().toString().trim());
         person.setLastname(inputLastname.getText().toString().trim());
-        person.setBirthdate(birthdate);
         person.setZipcode(inputZipcode.getText().toString().trim());
-        person.setCreatedAt(now);
-        person.setModifiedAt(now);
+        person.setModifiedAt((new Date()).getTime());
 
-        // Copy the object to Realm
-        realm.beginTransaction();
-        realm.copyToRealm(person);
+        // Update person on Firebase
+        Firebase rootRef = new Firebase(getResources().getString(R.string.firebase_url));
+        Firebase personRef =
+                rootRef.child("persons").child(rootRef.getAuth().getUid()).child(person.getId());
+        personRef.setValue(person);
+
+
+        // Commit changes to Realm
         realm.commitTransaction();
 
+        // Go back to home screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             finishAfterTransition();
         } else {

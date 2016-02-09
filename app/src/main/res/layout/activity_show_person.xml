@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".view.activity.EditPersonActivity">
+    tools:context=".view.activity.ShowPersonActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -45,91 +45,72 @@
                 android:layout_gravity="center_horizontal"
                 android:contentDescription="@string/avatar"/>
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/input_layout_firstname"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_marginTop="@dimen/activity_vertical_margin">
 
-                <EditText
-                    android:id="@+id/input_firstname"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_birthdate"
+                    android:textColor="@color/text_black_secondary"/>
+
+                <TextView
+                    android:id="@+id/details_birthdate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/text_black_primary"
-                    android:inputType="textPersonName|textCapWords"
-                    android:hint="@string/hint_firstname"/>
+                    android:layout_marginLeft="@dimen/space_between_content"
+                    android:layout_marginStart="@dimen/space_between_content"/>
 
-            </android.support.design.widget.TextInputLayout>
+            </LinearLayout>
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/input_layout_lastname"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin">
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/space_between_content">
 
-                <EditText
-                    android:id="@+id/input_lastname"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_zipcode"
+                    android:textColor="@color/text_black_secondary"/>
+
+                <TextView
+                    android:id="@+id/details_zipcode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/text_black_primary"
-                    android:inputType="textPersonName|textCapWords"
-                    android:hint="@string/hint_lastname"/>
+                    android:layout_marginLeft="@dimen/space_between_content"
+                    android:layout_marginStart="@dimen/space_between_content"/>
 
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/input_layout_birthdate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin">
-
-                <EditText
-                    android:id="@+id/input_birthdate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_black_primary"
-                    android:inputType="textCapWords|date"
-                    android:hint="@string/hint_birthdate"/>
-
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/input_layout_zipcode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin">
-
-                <EditText
-                    android:id="@+id/input_zipcode"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_black_primary"
-                    android:inputType="number"
-                    android:hint="@string/hint_zipcode"/>
-
-            </android.support.design.widget.TextInputLayout>
+            </LinearLayout>
 
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_gravity="end">
+                android:layout_gravity="end"
+                android:layout_marginTop="@dimen/activity_vertical_margin">
 
                 <Button
-                    android:id="@+id/cancel_button"
+                    android:id="@+id/edit_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/cancel"
+                    android:text="@string/edit"
                     android:theme="@style/SecondaryButton"/>
 
                 <Button
-                    android:id="@+id/save_button"
+                    android:id="@+id/delete_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/save"
-                    android:theme="@style/PrimaryButton"
-                    android:layout_toRightOf="@+id/cancel_button"
-                    android:layout_toEndOf="@+id/cancel_button"/>
+                    android:text="@string/delete"
+                    android:theme="@style/PrimaryButtonWarning"
+                    android:layout_toRightOf="@+id/edit_button"
+                    android:layout_toEndOf="@+id/edit_button"/>
 
             </RelativeLayout>
 

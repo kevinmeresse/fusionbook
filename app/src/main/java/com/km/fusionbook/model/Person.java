@@ -1,28 +1,30 @@
 package com.km.fusionbook.model;
 
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Person extends RealmObject {
 
     public static final String EXTRA_PERSON_ID = "extra_person_id";
 
     @PrimaryKey
-    private long id;
+    private String id;
     private String firstname;
     private String lastname;
-    private Date birthdate;
+    private long birthdate;
     private String zipcode;
-    private Date createdAt;
-    private Date modifiedAt;
+    private long createdAt;
+    private long modifiedAt;
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -42,14 +44,6 @@ public class Person extends RealmObject {
         this.lastname = lastname;
     }
 
-    public Date getBirthdate() {
-        return birthdate;
-    }
-
-    public void setBirthdate(Date birthdate) {
-        this.birthdate = birthdate;
-    }
-
     public String getZipcode() {
         return zipcode;
     }
@@ -58,19 +52,64 @@ public class Person extends RealmObject {
         this.zipcode = zipcode;
     }
 
-    public Date getCreatedAt() {
+    public long getBirthdate() {
+        return birthdate;
+    }
+
+    public void setBirthdate(long birthdate) {
+        this.birthdate = birthdate;
+    }
+
+    public long getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getModifiedAt() {
+    public long getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Date modifiedAt) {
+    public void setModifiedAt(long modifiedAt) {
         this.modifiedAt = modifiedAt;
+    }
+
+    static public void addToRealm(Person personToAdd) {
+        if (personToAdd != null && personToAdd.getId() != null) {
+            // Get the default realm
+            Realm realm = Realm.getDefaultInstance();
+            realm.beginTransaction();
+
+            // Check if person already in Realm
+            Person person = null;
+            try {
+                person = realm
+                        .where(Person.class)
+                        .equalTo("id", personToAdd.getId())
+                        .findFirst();
+            } catch (Exception e) {
+                // Unable to query local DB
+                // Do nothing
+            }
+
+            // If person not already in Realm, create a new entry
+            if (person == null) {
+                person = realm.createObject(Person.class);
+                person.setId(personToAdd.getId());
+            }
+
+            // Update person's details
+            person.setFirstname(personToAdd.getFirstname());
+            person.setLastname(personToAdd.getLastname());
+            person.setBirthdate(personToAdd.getBirthdate());
+            person.setZipcode(personToAdd.getZipcode());
+            person.setCreatedAt(personToAdd.getCreatedAt());
+            person.setModifiedAt(personToAdd.getModifiedAt());
+
+            // Commit changes to Realm
+            realm.commitTransaction();
+        }
     }
 }

@@ -1,6 +1,5 @@
 package com.km.fusionbook.view.adapter;
 
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
@@ -12,14 +11,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.km.fusionbook.R;
-import com.km.fusionbook.interfaces.LongIDClickListener;
+import com.km.fusionbook.interfaces.IDClickListener;
 import com.km.fusionbook.model.Person;
 
 public class PersonAdapter extends RealmRecyclerViewAdapter<Person> {
 
-    private LongIDClickListener itemClickListener;
+    private IDClickListener itemClickListener;
 
-    public PersonAdapter(LongIDClickListener itemClickListener) {
+    public PersonAdapter(IDClickListener itemClickListener) {
         this.itemClickListener = itemClickListener;
     }
 

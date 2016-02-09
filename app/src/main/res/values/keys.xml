@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="firebase_url">https://fusion-book.firebaseio.com</string>
+    <string name="facebook_app_id">1010258439046053</string>
+
+</resources>

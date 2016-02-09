@@ -2,33 +2,32 @@ package com.km.fusionbook.view.customviews;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Created by kevin on 2/2/16.
- */
 public class DatePickerDialog  extends DialogFragment {
 
     private android.app.DatePickerDialog.OnDateSetListener listener;
-    private Date defaultDate;
+    private long defaultDate;
 
-    public static DatePickerDialog newInstance(Date defaultDate, android.app.DatePickerDialog.OnDateSetListener listener) {
+    public static DatePickerDialog newInstance(long defaultDate, android.app.DatePickerDialog.OnDateSetListener listener) {
         DatePickerDialog fragment = new DatePickerDialog();
         fragment.setDefaultDate(defaultDate);
         fragment.setListener(listener);
         return fragment;
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final Calendar c = Calendar.getInstance();
 
         // Use specified date as the default values for the picker
-        if (defaultDate != null) {
-            c.setTime(defaultDate);
+        if (defaultDate != 0) {
+            c.setTime(new Date(defaultDate));
         }
         // Otherwise use the current date
         int year = c.get(Calendar.YEAR);
@@ -44,7 +43,7 @@ public class DatePickerDialog  extends DialogFragment {
         this.listener = listener;
     }
 
-    public void setDefaultDate(Date date) {
+    public void setDefaultDate(long date) {
         this.defaultDate = date;
     }
 }

@@ -22,6 +22,14 @@
         <item name="colorButtonNormal">@color/colorAccent</item>
     </style>
 
+    <style name="PrimaryButtonWarning" parent="Theme.AppCompat">
+        <item name="colorButtonNormal">@color/colorPrimary</item>
+    </style>
+
+    <style name="PrimaryButtonFacebook" parent="Theme.AppCompat">
+        <item name="colorButtonNormal">@color/blue_facebook</item>
+    </style>
+
     <style name="SecondaryButton" parent="Theme.AppCompat.Light">
         <item name="colorButtonNormal">@android:color/white</item>
     </style>
