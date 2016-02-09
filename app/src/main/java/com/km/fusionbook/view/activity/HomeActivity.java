@@ -97,7 +97,7 @@ public class HomeActivity extends AppCompatActivity
         emptyView = findViewById(R.id.empty_view);
         setupRecyclerView(rv);
 
-        // Retrieve data from Firebase and update local database
+        // Retrieve data from Firebase and update local database (if logged in)
         if (authData != null) {
             Firebase personsRef = firebaseRef.child("persons").child(authData.getUid());
             personsRef.addValueEventListener(new ValueEventListener() {

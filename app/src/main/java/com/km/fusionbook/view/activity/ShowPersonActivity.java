@@ -92,9 +92,11 @@ public class ShowPersonActivity extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // Delete person from Firebase
+                                // Delete person from Firebase (if logged in)
                                 Firebase rootRef = new Firebase(getResources().getString(R.string.firebase_url));
-                                rootRef.child("persons").child(rootRef.getAuth().getUid()).child(person.getId()).removeValue();
+                                if (rootRef.getAuth() != null) {
+                                    rootRef.child("persons").child(rootRef.getAuth().getUid()).child(person.getId()).removeValue();
+                                }
 
                                 // Delete person from Realm
                                 realm.executeTransaction(new Realm.Transaction() {

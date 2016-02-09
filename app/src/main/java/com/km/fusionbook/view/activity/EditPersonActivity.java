@@ -269,11 +269,13 @@ public class EditPersonActivity extends AppCompatActivity {
         person.setZipcode(inputZipcode.getText().toString().trim());
         person.setModifiedAt((new Date()).getTime());
 
-        // Update person on Firebase
+        // Update person on Firebase (if logged in)
         Firebase rootRef = new Firebase(getResources().getString(R.string.firebase_url));
-        Firebase personRef =
-                rootRef.child("persons").child(rootRef.getAuth().getUid()).child(person.getId());
-        personRef.setValue(person);
+        if (rootRef.getAuth() != null) {
+            Firebase personRef =
+                    rootRef.child("persons").child(rootRef.getAuth().getUid()).child(person.getId());
+            personRef.setValue(person);
+        }
 
 
         // Commit changes to Realm
