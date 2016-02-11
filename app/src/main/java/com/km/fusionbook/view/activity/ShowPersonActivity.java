@@ -135,8 +135,10 @@ public class ShowPersonActivity extends AppCompatActivity {
         }
 
         if (person != null) {
-            birthdate.setText(DateFormat.getDateInstance().format(person.getBirthdate()));
-            zipcode.setText(person.getZipcode());
+            if (person.getBirthdate() != 0) {
+                birthdate.setText(DateFormat.getDateInstance().format(person.getBirthdate()));
+            }
+            zipcode.setText(person.getAddressZipcode());
             String fullname = person.getFirstname() + " " + person.getLastname();
             ActionBar actionBar = getSupportActionBar();
             if (actionBar != null) {

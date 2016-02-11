@@ -32,10 +32,13 @@ import io.realm.Realm;
 
 public class EditPersonActivity extends AppCompatActivity {
 
-    private EditText inputFirstname, inputLastname, inputBirthdate, inputZipcode;
+    private EditText inputFirstname, inputLastname, inputBirthdate, inputMobilePhone, inputCountry,
+            inputWorkPhone, inputEmail, inputStreet, inputCity, inputState, inputZipcode;
     private TextInputLayout inputLayoutFirstname, inputLayoutLastname,
-            inputLayoutBirthdate, inputLayoutZipcode;
-    private Pattern zipcodePattern;
+            inputLayoutBirthdate, inputLayoutEmail, inputLayoutZipcode;
+
+    private Pattern zipcodePattern, emailPattern;
+
     private Realm realm;
     private Person person;
 
@@ -83,11 +86,19 @@ public class EditPersonActivity extends AppCompatActivity {
         inputLayoutFirstname = (TextInputLayout) findViewById(R.id.input_layout_firstname);
         inputLayoutLastname = (TextInputLayout) findViewById(R.id.input_layout_lastname);
         inputLayoutBirthdate = (TextInputLayout) findViewById(R.id.input_layout_birthdate);
+        inputLayoutEmail = (TextInputLayout) findViewById(R.id.input_layout_email);
         inputLayoutZipcode = (TextInputLayout) findViewById(R.id.input_layout_zipcode);
         inputFirstname = (EditText) findViewById(R.id.input_firstname);
         inputLastname = (EditText) findViewById(R.id.input_lastname);
         inputBirthdate = (EditText) findViewById(R.id.input_birthdate);
+        inputEmail = (EditText) findViewById(R.id.input_email);
+        inputMobilePhone = (EditText) findViewById(R.id.input_phone_mobile);
+        inputWorkPhone = (EditText) findViewById(R.id.input_phone_work);
+        inputStreet = (EditText) findViewById(R.id.input_street);
+        inputCity = (EditText) findViewById(R.id.input_city);
+        inputState = (EditText) findViewById(R.id.input_state);
         inputZipcode = (EditText) findViewById(R.id.input_zipcode);
+        inputCountry = (EditText) findViewById(R.id.input_country);
         Button cancelButton = (Button) findViewById(R.id.cancel_button);
         Button saveButton = (Button) findViewById(R.id.save_button);
 
@@ -95,8 +106,17 @@ public class EditPersonActivity extends AppCompatActivity {
         if (person != null) {
             inputFirstname.setText(person.getFirstname());
             inputLastname.setText(person.getLastname());
-            inputBirthdate.setText(DateFormat.getDateInstance().format(person.getBirthdate()));
-            inputZipcode.setText(person.getZipcode());
+            if (person.getBirthdate() != 0) {
+                inputBirthdate.setText(DateFormat.getDateInstance().format(person.getBirthdate()));
+            }
+            inputEmail.setText(person.getEmail());
+            inputMobilePhone.setText(person.getMobilePhone());
+            inputWorkPhone.setText(person.getWorkPhone());
+            inputStreet.setText(person.getAddressStreet());
+            inputCity.setText(person.getAddressCity());
+            inputState.setText(person.getAddressState());
+            inputZipcode.setText(person.getAddressZipcode());
+            inputCountry.setText(person.getAddressCountry());
         } else {
             if (actionBar != null) {
                 actionBar.setTitle(R.string.add_person);
@@ -110,10 +130,12 @@ public class EditPersonActivity extends AppCompatActivity {
         inputFirstname.addTextChangedListener(new MyTextWatcher(inputFirstname));
         inputLastname.addTextChangedListener(new MyTextWatcher(inputLastname));
         inputBirthdate.addTextChangedListener(new MyTextWatcher(inputBirthdate));
+        inputEmail.addTextChangedListener(new MyTextWatcher(inputEmail));
         inputZipcode.addTextChangedListener(new MyTextWatcher(inputZipcode));
 
-        // Initialize pattern for validating zip-codes
+        // Initialize patterns for validation
         zipcodePattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
+        emailPattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$", Pattern.CASE_INSENSITIVE);
 
         // ACTIONS
         // Click on birthdate field
@@ -220,11 +242,7 @@ public class EditPersonActivity extends AppCompatActivity {
     }
 
     private boolean validateBirthdate() {
-        if (inputBirthdate.getText().toString().trim().isEmpty()) {
-            inputLayoutBirthdate.setError(getString(R.string.err_msg_birthdate));
-            requestFocus(inputBirthdate);
-            return false;
-        } else if (person.getBirthdate() > (new Date()).getTime()) {
+        if (person.getBirthdate() > (new Date()).getTime()) {
             inputLayoutBirthdate.setError(getString(R.string.err_msg_birthdate_past));
             return false;
         } else {
@@ -235,16 +253,26 @@ public class EditPersonActivity extends AppCompatActivity {
     }
 
     private boolean validateZipcode() {
-        if (inputZipcode.getText().toString().trim().isEmpty()) {
-            inputLayoutZipcode.setError(getString(R.string.err_msg_zipcode));
-            requestFocus(inputZipcode);
-            return false;
-        } else if (!zipcodePattern.matcher(inputZipcode.getText().toString().trim()).matches()) {
+        String content = inputZipcode.getText().toString().trim();
+        if (!content.isEmpty() && !zipcodePattern.matcher(content).matches()) {
             inputLayoutZipcode.setError(getString(R.string.err_msg_zipcode_format));
             requestFocus(inputZipcode);
             return false;
         } else {
             inputLayoutZipcode.setErrorEnabled(false);
+        }
+
+        return true;
+    }
+
+    private boolean validateEmail() {
+        String content = inputEmail.getText().toString().trim();
+        if (!content.isEmpty() && !emailPattern.matcher(content).matches()) {
+            inputLayoutEmail.setError(getString(R.string.err_msg_email_format));
+            requestFocus(inputEmail);
+            return false;
+        } else {
+            inputLayoutEmail.setErrorEnabled(false);
         }
 
         return true;
@@ -258,7 +286,7 @@ public class EditPersonActivity extends AppCompatActivity {
 
     private void submitForm() {
         // Validate form
-        if (!validateFirstname() || !validateLastname()
+        if (!validateFirstname() || !validateLastname() || !validateEmail()
                 || !validateBirthdate() || !validateZipcode()) {
             return;
         }
@@ -266,7 +294,14 @@ public class EditPersonActivity extends AppCompatActivity {
         // Update person object
         person.setFirstname(inputFirstname.getText().toString().trim());
         person.setLastname(inputLastname.getText().toString().trim());
-        person.setZipcode(inputZipcode.getText().toString().trim());
+        person.setEmail(inputEmail.getText().toString().trim());
+        person.setMobilePhone(inputMobilePhone.getText().toString().trim());
+        person.setWorkPhone(inputWorkPhone.getText().toString().trim());
+        person.setAddressStreet(inputStreet.getText().toString().trim());
+        person.setAddressCity(inputCity.getText().toString().trim());
+        person.setAddressState(inputState.getText().toString().trim());
+        person.setAddressZipcode(inputZipcode.getText().toString().trim());
+        person.setAddressCountry(inputCountry.getText().toString().trim());
         person.setModifiedAt((new Date()).getTime());
 
         // Update person on Firebase (if logged in)
@@ -313,6 +348,9 @@ public class EditPersonActivity extends AppCompatActivity {
                     break;
                 case R.id.input_birthdate:
                     validateBirthdate();
+                    break;
+                case R.id.input_email:
+                    validateEmail();
                     break;
                 case R.id.input_zipcode:
                     validateZipcode();

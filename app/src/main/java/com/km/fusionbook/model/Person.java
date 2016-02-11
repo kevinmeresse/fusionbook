@@ -16,7 +16,14 @@ public class Person extends RealmObject {
     private String firstname;
     private String lastname;
     private long birthdate;
-    private String zipcode;
+    private String mobilePhone;
+    private String workPhone;
+    private String email;
+    private String addressStreet;
+    private String addressCity;
+    private String addressState;
+    private String addressZipcode;
+    private String addressCountry;
     private long createdAt;
     private long modifiedAt;
 
@@ -44,12 +51,12 @@ public class Person extends RealmObject {
         this.lastname = lastname;
     }
 
-    public String getZipcode() {
-        return zipcode;
+    public String getAddressZipcode() {
+        return addressZipcode;
     }
 
-    public void setZipcode(String zipcode) {
-        this.zipcode = zipcode;
+    public void setAddressZipcode(String addressZipcode) {
+        this.addressZipcode = addressZipcode;
     }
 
     public long getBirthdate() {
@@ -74,6 +81,62 @@ public class Person extends RealmObject {
 
     public void setModifiedAt(long modifiedAt) {
         this.modifiedAt = modifiedAt;
+    }
+
+    public String getMobilePhone() {
+        return mobilePhone;
+    }
+
+    public void setMobilePhone(String mobilePhone) {
+        this.mobilePhone = mobilePhone;
+    }
+
+    public String getWorkPhone() {
+        return workPhone;
+    }
+
+    public void setWorkPhone(String workPhone) {
+        this.workPhone = workPhone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAddressStreet() {
+        return addressStreet;
+    }
+
+    public void setAddressStreet(String addressStreet) {
+        this.addressStreet = addressStreet;
+    }
+
+    public String getAddressCity() {
+        return addressCity;
+    }
+
+    public void setAddressCity(String addressCity) {
+        this.addressCity = addressCity;
+    }
+
+    public String getAddressState() {
+        return addressState;
+    }
+
+    public void setAddressState(String addressState) {
+        this.addressState = addressState;
+    }
+
+    public String getAddressCountry() {
+        return addressCountry;
+    }
+
+    public void setAddressCountry(String addressCountry) {
+        this.addressCountry = addressCountry;
     }
 
     static public void addToRealm(Person personToAdd) {
@@ -104,7 +167,14 @@ public class Person extends RealmObject {
             person.setFirstname(personToAdd.getFirstname());
             person.setLastname(personToAdd.getLastname());
             person.setBirthdate(personToAdd.getBirthdate());
-            person.setZipcode(personToAdd.getZipcode());
+            person.setMobilePhone(personToAdd.getMobilePhone());
+            person.setWorkPhone(personToAdd.getWorkPhone());
+            person.setEmail(personToAdd.getEmail());
+            person.setAddressStreet(personToAdd.getAddressStreet());
+            person.setAddressCity(personToAdd.getAddressCity());
+            person.setAddressState(personToAdd.getAddressState());
+            person.setAddressZipcode(personToAdd.getAddressZipcode());
+            person.setAddressCountry(personToAdd.getAddressCountry());
             person.setCreatedAt(personToAdd.getCreatedAt());
             person.setModifiedAt(personToAdd.getModifiedAt());
 

@@ -34,4 +34,10 @@
         <item name="colorButtonNormal">@android:color/white</item>
     </style>
 
+    <style name="textInputLayout">
+        <item name="android:layout_marginTop">@dimen/space_between_content</item>
+        <item name="android:layout_marginLeft">@dimen/space_between_content</item>
+        <item name="android:layout_marginRight">@dimen/space_between_content</item>
+    </style>
+
 </resources>
