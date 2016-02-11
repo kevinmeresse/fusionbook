@@ -65,6 +65,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_black_primary"
                         android:inputType="textPersonName|textCapWords"
+                        android:nextFocusDown="@+id/input_lastname"
                         android:hint="@string/hint_firstname"/>
 
                 </android.support.design.widget.TextInputLayout>
@@ -82,6 +83,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_black_primary"
                         android:inputType="textPersonName|textCapWords"
+                        android:nextFocusDown="@+id/input_birthdate"
                         android:hint="@string/hint_lastname"/>
 
                 </android.support.design.widget.TextInputLayout>
@@ -108,6 +110,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_black_primary"
                         android:inputType="textCapWords|date"
+                        android:nextFocusDown="@+id/input_phone_mobile"
                         android:hint="@string/hint_birthdate"/>
 
                 </android.support.design.widget.TextInputLayout>
@@ -140,6 +143,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_black_primary"
                         android:inputType="phone"
+                        android:nextFocusDown="@+id/input_phone_work"
                         android:hint="@string/hint_phone_mobile"/>
 
                 </android.support.design.widget.TextInputLayout>
@@ -157,6 +161,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_black_primary"
                         android:inputType="phone"
+                        android:nextFocusDown="@+id/input_email"
                         android:hint="@string/hint_phone_work"/>
 
                 </android.support.design.widget.TextInputLayout>
@@ -175,6 +180,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/text_black_primary"
                     android:inputType="textEmailAddress"
+                    android:nextFocusDown="@+id/input_street"
                     android:hint="@string/hint_email"/>
 
             </android.support.design.widget.TextInputLayout>
@@ -197,6 +203,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/text_black_primary"
                     android:inputType="textMultiLine|textCapWords"
+                    android:nextFocusDown="@+id/input_city"
                     android:hint="@string/hint_street"/>
 
             </android.support.design.widget.TextInputLayout>
@@ -221,6 +228,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_black_primary"
                         android:inputType="textCapWords"
+                        android:nextFocusDown="@+id/input_state"
                         android:hint="@string/hint_city"/>
 
                 </android.support.design.widget.TextInputLayout>
@@ -238,6 +246,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_black_primary"
                         android:inputType="textCapWords"
+                        android:nextFocusDown="@+id/input_zipcode"
                         android:hint="@string/hint_state"/>
 
                 </android.support.design.widget.TextInputLayout>
@@ -264,6 +273,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_black_primary"
                         android:inputType="text|number"
+                        android:nextFocusDown="@+id/input_country"
                         android:hint="@string/hint_zipcode"/>
 
                 </android.support.design.widget.TextInputLayout>
@@ -281,6 +291,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_black_primary"
                         android:inputType="textCapWords"
+                        android:nextFocusDown="@+id/save_button"
                         android:hint="@string/hint_country"/>
 
                 </android.support.design.widget.TextInputLayout>
