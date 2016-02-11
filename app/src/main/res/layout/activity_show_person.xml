@@ -32,8 +32,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingLeft="@dimen/space_between_content"
+            android:paddingRight="@dimen/space_between_content"
             android:paddingTop="@dimen/activity_vertical_margin"
             android:focusableInTouchMode="true">
 
@@ -43,51 +43,285 @@
                 android:src="@drawable/ic_profile_white_80dp"
                 android:tint="@color/text_black_disabled"
                 android:layout_gravity="center_horizontal"
-                android:contentDescription="@string/avatar"/>
+                android:contentDescription="@string/avatar"
+                android:layout_marginBottom="@dimen/space_between_content"/>
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/details_birthdate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="@dimen/space_between_content"
+                android:textColor="@color/text_black_primary"
+                android:textSize="12sp"
+                android:text="Oct 12, 1983"/>
+
+            <android.support.v7.widget.CardView
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/card_phone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="@dimen/activity_vertical_margin">
+                android:layout_margin="@dimen/space_between_content"
+                card_view:cardCornerRadius="4dp"
+                card_view:cardBackgroundColor="@android:color/white">
 
-                <TextView
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_birthdate"
-                    android:textColor="@color/text_black_secondary"/>
+                    android:src="@drawable/ic_phone_black_24dp"
+                    android:tint="@color/colorAccent"
+                    android:layout_margin="24dp"
+                    android:contentDescription="@string/label_phone"/>
 
-                <TextView
-                    android:id="@+id/details_birthdate"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/text_black_primary"
-                    android:layout_marginLeft="@dimen/space_between_content"
-                    android:layout_marginStart="@dimen/space_between_content"/>
+                    android:orientation="vertical">
 
-            </LinearLayout>
+                    <FrameLayout
+                        android:id="@+id/details_layout_phone_mobile"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/list_item_big_height"
+                        android:paddingLeft="@dimen/list_item_big_height"
+                        android:paddingStart="@dimen/list_item_big_height"
+                        android:paddingRight="0dp"
+                        android:paddingEnd="0dp"
+                        android:background="?android:attr/selectableItemBackground">
 
-            <LinearLayout
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginRight="@dimen/list_item_big_height"
+                            android:layout_marginEnd="@dimen/list_item_big_height">
+
+                            <TextView
+                                android:id="@+id/label_mobile"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/text_space"
+                                android:text="@string/label_mobile"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_black_secondary"/>
+
+                            <TextView
+                                android:id="@+id/details_phone_mobile"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/label_mobile"
+                                android:textColor="@color/text_black_primary"
+                                android:singleLine="true"
+                                android:ellipsize="end"
+                                android:text="+689 87 76 17 52"/>
+
+                        </RelativeLayout>
+
+                        <Button
+                            android:id="@+id/details_phone_mobile_action_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/call"
+                            android:textColor="@color/colorAccent"
+                            android:layout_gravity="center_vertical|end"
+                            style="@style/Widget.AppCompat.Button.Borderless"/>
+
+                    </FrameLayout>
+
+                    <View
+                        android:id="@+id/details_phone_divider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/black_divider"
+                        android:layout_marginLeft="@dimen/list_item_big_height"
+                        android:layout_marginStart="@dimen/list_item_big_height"/>
+
+                    <FrameLayout
+                        android:id="@+id/details_layout_phone_work"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/list_item_big_height"
+                        android:paddingLeft="@dimen/list_item_big_height"
+                        android:paddingStart="@dimen/list_item_big_height"
+                        android:paddingRight="0dp"
+                        android:paddingEnd="0dp"
+                        android:background="?android:attr/selectableItemBackground">
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginRight="@dimen/list_item_big_height"
+                            android:layout_marginEnd="@dimen/list_item_big_height">
+
+                            <TextView
+                                android:id="@+id/label_work"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/text_space"
+                                android:text="@string/label_work"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_black_secondary"/>
+
+                            <TextView
+                                android:id="@+id/details_phone_work"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/label_work"
+                                android:textColor="@color/text_black_primary"
+                                android:singleLine="true"
+                                android:ellipsize="end"
+                                android:text="+689 40 22 20 23"/>
+
+                        </RelativeLayout>
+
+                        <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/call"
+                            android:textColor="@color/colorAccent"
+                            android:layout_gravity="center_vertical|end"
+                            style="@style/Widget.AppCompat.Button.Borderless"/>
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/card_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="@dimen/space_between_content">
+                android:layout_margin="@dimen/space_between_content"
+                card_view:cardCornerRadius="4dp"
+                card_view:cardBackgroundColor="@android:color/white">
 
-                <TextView
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_zipcode"
-                    android:textColor="@color/text_black_secondary"/>
+                    android:src="@drawable/ic_email_black_24dp"
+                    android:tint="@color/colorAccent"
+                    android:layout_margin="24dp"
+                    android:contentDescription="@string/label_email"/>
 
-                <TextView
-                    android:id="@+id/details_zipcode"
+                <FrameLayout
+                    android:id="@+id/details_layout_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/list_item_big_height"
+                    android:paddingLeft="@dimen/list_item_big_height"
+                    android:paddingStart="@dimen/list_item_big_height"
+                    android:paddingRight="0dp"
+                    android:paddingEnd="0dp"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="@dimen/list_item_big_height"
+                        android:layout_marginEnd="@dimen/list_item_big_height">
+
+                        <TextView
+                            android:id="@+id/label_email"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/text_space"
+                            android:text="@string/label_email"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_black_secondary"/>
+
+                        <TextView
+                            android:id="@+id/details_email"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/label_email"
+                            android:textColor="@color/text_black_primary"
+                            android:singleLine="true"
+                            android:ellipsize="end"
+                            android:text="kevin.meresse@gmail.com"/>
+
+                    </RelativeLayout>
+
+                    <Button
+                        android:id="@+id/details_email_action_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/send"
+                        android:textColor="@color/colorAccent"
+                        android:layout_gravity="center_vertical|end"
+                        style="@style/Widget.AppCompat.Button.Borderless"/>
+
+                </FrameLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/card_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/space_between_content"
+                card_view:cardCornerRadius="4dp"
+                card_view:cardBackgroundColor="@android:color/white">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_location_on_black_24dp"
+                    android:tint="@color/colorAccent"
+                    android:layout_margin="24dp"
+                    android:contentDescription="@string/label_address"/>
+
+                <FrameLayout
+                    android:id="@+id/details_layout_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/text_black_primary"
-                    android:layout_marginLeft="@dimen/space_between_content"
-                    android:layout_marginStart="@dimen/space_between_content"/>
+                    android:paddingLeft="@dimen/list_item_big_height"
+                    android:paddingStart="@dimen/list_item_big_height"
+                    android:paddingRight="0dp"
+                    android:paddingEnd="0dp"
+                    android:paddingTop="18dp"
+                    android:paddingBottom="18dp"
+                    android:background="?android:attr/selectableItemBackground">
 
-            </LinearLayout>
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="@dimen/list_item_big_height"
+                        android:layout_marginEnd="@dimen/list_item_big_height">
+
+                        <TextView
+                            android:id="@+id/label_address"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/text_space"
+                            android:text="@string/label_address"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_black_secondary"/>
+
+                        <TextView
+                            android:id="@+id/details_address"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/label_address"
+                            android:textColor="@color/text_black_primary"
+                            android:ellipsize="end"
+                            android:text="BP 1441\nPapeete, Tahiti\n98713, French Polynesia"/>
+
+                    </RelativeLayout>
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/see_map"
+                        android:textColor="@color/colorAccent"
+                        android:layout_gravity="center_vertical|end"
+                        style="@style/Widget.AppCompat.Button.Borderless"/>
+
+                </FrameLayout>
+
+            </android.support.v7.widget.CardView>
 
             <RelativeLayout
                 android:layout_width="wrap_content"

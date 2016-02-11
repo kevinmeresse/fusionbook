@@ -19,10 +19,18 @@
 
     <!-- SHOW PERSON -->
     <string name="title_activity_show_person">Person\'s details</string>
-    <string name="label_birthdate">Born on:</string>
-    <string name="label_zipcode">Zip-code:</string>
+    <string name="label_phone">Phone</string>
+    <string name="label_mobile">Mobile</string>
+    <string name="label_work">Work</string>
+    <string name="label_email">Email</string>
+    <string name="label_address">Address</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
+    <string name="call">Call</string>
+    <string name="send">Send</string>
+    <string name="see_map">See map</string>
+    <string name="add_phone_number">Add a phone number</string>
+    <string name="add_email">Add an email</string>
 
     <!-- ADD / EDIT PERSON -->
     <string name="title_activity_edit_person">Edit person</string>

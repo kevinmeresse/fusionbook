@@ -9,7 +9,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.transition.Slide;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 import com.firebase.client.Firebase;
 import com.km.fusionbook.R;
 import com.km.fusionbook.model.Person;
+import com.km.fusionbook.util.Utils;
 import com.km.fusionbook.view.customviews.YesNoDialog;
 
 import java.text.DateFormat;
@@ -31,9 +34,13 @@ public class ShowPersonActivity extends AppCompatActivity {
     private Realm realm;
     private String personId;
     private Person person;
+    private boolean emptyScreen = false;
 
-    private TextView birthdate;
-    private TextView zipcode;
+    private TextView birthdate, mobilePhone, workPhone, email, address;
+    private View mobilePhoneLayout, workPhoneLayout, phoneDividerLayout;
+    private TextView mobilePhoneLabel, emailLabel;
+    private Button mobilePhoneButton, emailButton;
+    private CardView phoneCard, emailCard, addressCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +68,23 @@ public class ShowPersonActivity extends AppCompatActivity {
 
         // Retrieve views
         birthdate = (TextView) findViewById(R.id.details_birthdate);
-        zipcode = (TextView) findViewById(R.id.details_zipcode);
-        Button editButton = (Button) findViewById(R.id.edit_button);
+        mobilePhone = (TextView) findViewById(R.id.details_phone_mobile);
+        workPhone = (TextView) findViewById(R.id.details_phone_work);
+        email = (TextView) findViewById(R.id.details_email);
+        address = (TextView) findViewById(R.id.details_address);
+        mobilePhoneLayout = findViewById(R.id.details_layout_phone_mobile);
+        workPhoneLayout = findViewById(R.id.details_layout_phone_work);
+        View emailLayout = findViewById(R.id.details_layout_email);
+        View addressLayout = findViewById(R.id.details_layout_address);
+        phoneDividerLayout = findViewById(R.id.details_phone_divider);
+        mobilePhoneLabel = (TextView) findViewById(R.id.label_mobile);
+        emailLabel = (TextView) findViewById(R.id.label_email);
+        mobilePhoneButton = (Button) findViewById(R.id.details_phone_mobile_action_button);
+        emailButton = (Button) findViewById(R.id.details_email_action_button);
+        phoneCard = (CardView) findViewById(R.id.card_phone);
+        emailCard = (CardView) findViewById(R.id.card_email);
+        addressCard = (CardView) findViewById(R.id.card_address);
+        final Button editButton = (Button) findViewById(R.id.edit_button);
         Button deleteButton = (Button) findViewById(R.id.delete_button);
 
         // Retrieve person's ID
@@ -117,6 +139,45 @@ public class ShowPersonActivity extends AppCompatActivity {
                 dialog.show(getSupportFragmentManager(), "dialog");
             }
         });
+
+        // Phones
+        mobilePhoneLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (emptyScreen) {
+                    editButton.callOnClick();
+                } else {
+                    Utils.callPhoneNumber(ShowPersonActivity.this, mobilePhone.getText().toString());
+                }
+            }
+        });
+        workPhoneLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.callPhoneNumber(ShowPersonActivity.this, workPhone.getText().toString());
+            }
+        });
+
+        // Email
+        emailLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (emptyScreen) {
+                    editButton.callOnClick();
+                } else {
+                    String[] addresses = {email.getText().toString()};
+                    Utils.writeEmail(ShowPersonActivity.this, addresses);
+                }
+            }
+        });
+
+        // Address
+        addressLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.seeLocationOnMaps(ShowPersonActivity.this, address.getText().toString());
+            }
+        });
     }
 
     @Override
@@ -135,14 +196,98 @@ public class ShowPersonActivity extends AppCompatActivity {
         }
 
         if (person != null) {
-            if (person.getBirthdate() != 0) {
-                birthdate.setText(DateFormat.getDateInstance().format(person.getBirthdate()));
-            }
-            zipcode.setText(person.getAddressZipcode());
+            // NAME
             String fullname = person.getFirstname() + " " + person.getLastname();
             ActionBar actionBar = getSupportActionBar();
             if (actionBar != null) {
                 actionBar.setTitle(fullname);
+            }
+            // BIRTHDATE
+            if (person.getBirthdate() != 0) {
+                birthdate.setText(DateFormat.getDateInstance().format(person.getBirthdate()));
+                birthdate.setVisibility(View.VISIBLE);
+            } else {
+                birthdate.setVisibility(View.GONE);
+            }
+            // PHONES
+            int phoneCount = 0;
+            phoneDividerLayout.setVisibility(View.VISIBLE);
+            if (!TextUtils.isEmpty(person.getMobilePhone())) {
+                phoneCount++;
+                mobilePhone.setText(person.getMobilePhone());
+                mobilePhoneLayout.setVisibility(View.VISIBLE);
+                mobilePhoneLabel.setVisibility(View.VISIBLE);
+                mobilePhoneButton.setVisibility(View.VISIBLE);
+            } else {
+                mobilePhoneLayout.setVisibility(View.GONE);
+                phoneDividerLayout.setVisibility(View.GONE);
+            }
+            if (!TextUtils.isEmpty(person.getWorkPhone())) {
+                phoneCount++;
+                workPhone.setText(person.getWorkPhone());
+                workPhoneLayout.setVisibility(View.VISIBLE);
+            } else {
+                workPhoneLayout.setVisibility(View.GONE);
+                phoneDividerLayout.setVisibility(View.GONE);
+            }
+            phoneCard.setVisibility(phoneCount > 0 ? View.VISIBLE : View.GONE);
+            // EMAIL
+            int emailCount = 0;
+            if (!TextUtils.isEmpty(person.getEmail())) {
+                email.setText(person.getEmail());
+                emailCard.setVisibility(View.VISIBLE);
+                emailLabel.setVisibility(View.VISIBLE);
+                emailButton.setVisibility(View.VISIBLE);
+                emailCount++;
+            } else {
+                emailCard.setVisibility(View.GONE);
+            }
+            // ADDRESS
+            int addressCount = 0;
+            String addressString = "";
+            if (!TextUtils.isEmpty(person.getAddressStreet())) {
+                addressString += (person.getAddressStreet() + " \n");
+            }
+            if (!TextUtils.isEmpty(person.getAddressCity())) {
+                addressString += (person.getAddressCity() + ", ");
+            }
+            if (!TextUtils.isEmpty(person.getAddressState())) {
+                addressString += (person.getAddressState() + " \n");
+            } else if (!TextUtils.isEmpty(person.getAddressCity())) {
+                addressString = Utils.removeLastChars(addressString, 2);
+                addressString += " \n";
+            }
+            if (!TextUtils.isEmpty(person.getAddressZipcode())) {
+                addressString += (person.getAddressZipcode() + ", ");
+            }
+            if (!TextUtils.isEmpty(person.getAddressCountry())) {
+                addressString += person.getAddressCountry();
+            } else {
+                addressString = Utils.removeLastChars(addressString, 2);
+            }
+            if (!TextUtils.isEmpty(addressString)) {
+                address.setText(addressString);
+                addressCard.setVisibility(View.VISIBLE);
+                addressCount++;
+            } else {
+                addressCard.setVisibility(View.GONE);
+            }
+
+            // Set up empty screen
+            emptyScreen = (phoneCount == 0 && emailCount == 0 && addressCount == 0);
+            if (emptyScreen) {
+                // Add phone number
+                mobilePhoneLayout.setVisibility(View.VISIBLE);
+                mobilePhoneLabel.setVisibility(View.GONE);
+                mobilePhoneButton.setVisibility(View.GONE);
+                mobilePhone.setText(R.string.add_phone_number);
+                phoneCard.setVisibility(View.VISIBLE);
+
+                // Add email
+                emailLabel.setVisibility(View.GONE);
+                emailButton.setVisibility(View.GONE);
+                email.setText(R.string.add_email);
+                emailCard.setVisibility(View.VISIBLE);
             }
         }
     }
