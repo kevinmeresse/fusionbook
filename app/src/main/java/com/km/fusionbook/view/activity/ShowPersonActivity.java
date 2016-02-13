@@ -244,26 +244,26 @@ public class ShowPersonActivity extends AppCompatActivity {
             }
             // ADDRESS
             int addressCount = 0;
-            String addressString = "";
+            StringBuilder addressString = new StringBuilder();
             if (!TextUtils.isEmpty(person.getAddressStreet())) {
-                addressString += (person.getAddressStreet() + " \n");
+                addressString.append(person.getAddressStreet()).append(" \n");
             }
             if (!TextUtils.isEmpty(person.getAddressCity())) {
-                addressString += (person.getAddressCity() + ", ");
+                addressString.append(person.getAddressCity()).append(", ");
             }
             if (!TextUtils.isEmpty(person.getAddressState())) {
-                addressString += (person.getAddressState() + " \n");
+                addressString.append(person.getAddressState()).append(" \n");
             } else if (!TextUtils.isEmpty(person.getAddressCity())) {
-                addressString = Utils.removeLastChars(addressString, 2);
-                addressString += " \n";
+                addressString.delete(addressString.length() - 2, addressString.length());
+                addressString.append(" \n");
             }
             if (!TextUtils.isEmpty(person.getAddressZipcode())) {
-                addressString += (person.getAddressZipcode() + ", ");
+                addressString.append(person.getAddressZipcode()).append(", ");
             }
             if (!TextUtils.isEmpty(person.getAddressCountry())) {
-                addressString += person.getAddressCountry();
+                addressString.append(person.getAddressCountry());
             } else {
-                addressString = Utils.removeLastChars(addressString, 2);
+                addressString.delete(addressString.length() - 2, addressString.length());
             }
             if (!TextUtils.isEmpty(addressString)) {
                 address.setText(addressString);
