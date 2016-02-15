@@ -4,8 +4,12 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,8 +43,18 @@ public class PersonAdapter extends RealmRecyclerViewAdapter<Person> {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         PersonViewHolder eventHolder = (PersonViewHolder) holder;
         final Person person = getItem(position);
-        String fullname = person.getFirstname() + " " + person.getLastname();
+
+        SpannableStringBuilder fullname = new SpannableStringBuilder();
+        fullname.append(person.getFirstname()).append(" ");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            fullname.append(person.getLastname(), new StyleSpan(android.graphics.Typeface.BOLD), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        } else {
+            int start = fullname.length();
+            fullname.append(person.getLastname());
+            fullname.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), start, fullname.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
         eventHolder.fullname.setText(fullname);
+
         if (!TextUtils.isEmpty(person.getPictureUrl())) {
             Glide.with(context)
                     .load(person.getPictureUrl())

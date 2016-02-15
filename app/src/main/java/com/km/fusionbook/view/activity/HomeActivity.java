@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -44,6 +45,7 @@ public class HomeActivity extends AppCompatActivity
 
     private PersonAdapter adapter;
     private View emptyView;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     // Realm reference
     private Realm realm;
@@ -99,34 +101,31 @@ public class HomeActivity extends AppCompatActivity
         }
         navigationView.setNavigationItemSelectedListener(this);
 
+        // Set up Swipe Refresh Layout
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.colorAccent);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshData();
+            }
+        });
+
         // Get the default realm
         realm = Realm.getDefaultInstance();
 
-        // Setup list of persons
+        // Set up list of persons
         RecyclerView rv = (RecyclerView) findViewById(R.id.recyclerview);
         emptyView = findViewById(R.id.empty_view);
         setupRecyclerView(rv);
 
-        // Retrieve data from Firebase and update local database (if logged in)
-        if (authData != null) {
-            Firebase personsRef = firebaseRef.child("persons").child(authData.getUid());
-            personsRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot snapshot) {
-                    for (DataSnapshot personSnapshot : snapshot.getChildren()) {
-                        Person.addToRealm(personSnapshot.getValue(Person.class));
-                    }
-                    adapter.notifyDataSetChanged();
-                    showOrHideEmptyView();
-                }
-
-                @Override
-                public void onCancelled(FirebaseError firebaseError) {
-                    Snackbar.make(emptyView, "Unable to load data from server. Check your Internet connection and try again...", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
-            });
-        }
+        // Refresh data
+        swipeRefreshLayout.post(new Runnable() {
+            @Override public void run() {
+                swipeRefreshLayout.setRefreshing(true);
+            }
+        });
+        refreshData();
     }
 
     @SuppressWarnings("deprecation")
@@ -148,12 +147,39 @@ public class HomeActivity extends AppCompatActivity
         result = realm
                 .where(Person.class)
                 .findAll();
-        result.sort("firstname", Sort.ASCENDING);
+        result.sort("lastname", Sort.ASCENDING);
         RealmModelAdapter<Person> realmAdapter = new RealmModelAdapter<>(getApplicationContext(), result, true);
         // Set the data and tell the RecyclerView to draw
         adapter.setRealmAdapter(realmAdapter);
         adapter.notifyDataSetChanged();
         showOrHideEmptyView();
+    }
+
+    private void refreshData() {
+        // Retrieve data from Firebase and update local database (if logged in)
+        if (firebaseRef.getAuth() != null) {
+            Firebase personsRef = firebaseRef.child("persons").child(firebaseRef.getAuth().getUid());
+            personsRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    for (DataSnapshot personSnapshot : snapshot.getChildren()) {
+                        Person.addToRealm(personSnapshot.getValue(Person.class));
+                    }
+                    adapter.notifyDataSetChanged();
+                    showOrHideEmptyView();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+                    Snackbar.make(emptyView, "Unable to load data from server. Check your Internet connection and try again...", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            });
+        } else {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     private void showOrHideEmptyView() {
