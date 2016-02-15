@@ -1,5 +1,6 @@
 package com.km.fusionbook.view.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -31,6 +32,7 @@ import com.km.fusionbook.model.Person;
 import com.km.fusionbook.util.ImageUtils;
 import com.km.fusionbook.view.customviews.DatePickerDialog;
 import com.km.fusionbook.view.customviews.GlideCircleTransform;
+import com.km.fusionbook.view.customviews.YesNoDialog;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -179,6 +181,21 @@ public class EditPersonActivity extends AppCompatActivity {
                     intent.setAction(Intent.ACTION_GET_CONTENT);
                     // Always show the chooser (if there are multiple options available)
                     startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+                } else {
+                    YesNoDialog dialog = YesNoDialog.newInstance(
+                            R.string.dialog_edit_picture_title,
+                            R.string.dialog_edit_picture_message,
+                            R.string.nav_login,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // Quit activity and return to Login screen
+                                    Intent intent = new Intent(EditPersonActivity.this, LoginActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                }
+                            });
+                    dialog.show(getSupportFragmentManager(), "dialog");
                 }
             }
         });

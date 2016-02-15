@@ -120,12 +120,15 @@ public class HomeActivity extends AppCompatActivity
         setupRecyclerView(rv);
 
         // Refresh data
-        swipeRefreshLayout.post(new Runnable() {
-            @Override public void run() {
-                swipeRefreshLayout.setRefreshing(true);
-            }
-        });
-        refreshData();
+        if (authData != null) {
+            swipeRefreshLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    swipeRefreshLayout.setRefreshing(true);
+                    refreshData();
+                }
+            });
+        }
     }
 
     @SuppressWarnings("deprecation")

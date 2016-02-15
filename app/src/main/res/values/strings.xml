@@ -61,6 +61,8 @@
     <string name="dialog_delete_message">All this person\'s details will be deleted permanently.</string>
     <string name="dialog_discover_title">Really?</string>
     <string name="dialog_discover_message">Your data will only be saved locally. Login to securely save your address book in the cloud and access it on any other device.</string>
+    <string name="dialog_edit_picture_title">Edit picture</string>
+    <string name="dialog_edit_picture_message">You need to be logged in to be able to upload a picture.</string>
     <string name="dialog_ok">Let\'s do it!</string>
     <string name="dialog_cancel">Cancel</string>
 
