@@ -1,5 +1,6 @@
 package com.km.fusionbook.view.activity;
 
+import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,14 +10,18 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -36,7 +41,9 @@ import com.km.fusionbook.view.adapter.PersonAdapter;
 import com.km.fusionbook.view.adapter.RealmModelAdapter;
 import com.km.fusionbook.view.customviews.GlideCircleTransform;
 
+import io.realm.Case;
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -53,6 +60,22 @@ public class HomeActivity extends AppCompatActivity
 
     // Firebase reference
     private Firebase firebaseRef;
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        /**
+         * This is called whenever an intent for HomeActivity is started and there is already an
+         * instance of HomeActivity. Since its launchMode is defined as SingleTask in Manifest,
+         * the existing instance will be brought to foreground and onNewIntent() will be called.
+         */
+
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            updateList(query);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,9 +170,21 @@ public class HomeActivity extends AppCompatActivity
         recyclerView.addItemDecoration(new PersonAdapter.DividerItemDecoration(getResources().getColor(R.color.black_divider)));
         recyclerView.setAdapter(adapter);
 
-        result = realm
-                .where(Person.class)
-                .findAll();
+        updateList(null);
+    }
+
+    private void updateList(String textToSearch) {
+        RealmQuery<Person> query = realm.where(Person.class);
+        if (!TextUtils.isEmpty(textToSearch)) {
+            String[] texts = textToSearch.trim().split(" ");
+            for (String text : texts) {
+                query.beginGroup();
+                query.beginsWith("firstname", text, Case.INSENSITIVE);
+                query.or().beginsWith("lastname", text, Case.INSENSITIVE);
+                query.endGroup();
+            }
+        }
+        result = query.findAll();
         result.sort("lastname", Sort.ASCENDING);
         RealmModelAdapter<Person> realmAdapter = new RealmModelAdapter<>(getApplicationContext(), result, true);
         // Set the data and tell the RecyclerView to draw
@@ -266,5 +301,31 @@ public class HomeActivity extends AppCompatActivity
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_book_menu, menu);
+        // Retrieve the SearchView and plug it into SearchManager
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        // Set up search view behavior
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                updateList(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                updateList(newText);
+                return true;
+            }
+        });
+
+        return true;
     }
 }

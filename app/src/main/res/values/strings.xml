@@ -16,6 +16,8 @@
     <!-- LIST -->
     <string name="add_person">Add new person</string>
     <string name="list_empty">Click here to add a new person!</string>
+    <string name="search">Search</string>
+    <string name="search_hint">Find contacts</string>
 
     <!-- SHOW PERSON -->
     <string name="title_activity_show_person">Person\'s details</string>
@@ -65,5 +67,6 @@
     <string name="dialog_edit_picture_message">You need to be logged in to be able to upload a picture.</string>
     <string name="dialog_ok">Let\'s do it!</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="title_activity_test">TestActivity</string>
 
 </resources>
