@@ -1,29 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="64dp"
     android:background="?android:attr/selectableItemBackground">
 
     <ImageView
-        android:id="@+id/avatar"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:src="@drawable/ic_profile_white_80dp"
         android:tint="@color/text_black_secondary"
-        android:layout_centerVertical="true"
+        android:layout_gravity="center_vertical"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:contentDescription="@string/avatar" />
+
+    <ImageView
+        android:id="@+id/avatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:contentDescription="@string/avatar" />
 
     <TextView
         android:id="@+id/fullname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/avatar"
-        android:layout_toEndOf="@+id/avatar"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="72dp"
+        android:layout_marginStart="72dp"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:text="@string/hint_fullname"
-        android:textColor="@color/text_black_primary"/>
+        android:textColor="@color/text_black_primary"
+        android:singleLine="true"
+        android:ellipsize="end"/>
 
-</RelativeLayout>
+</FrameLayout>

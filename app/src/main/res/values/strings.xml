@@ -52,6 +52,7 @@
     <string name="err_msg_zipcode_format">Wrong zip-code format</string>
     <string name="err_msg_email_format">Wrong email format</string>
     <string name="avatar">Avatar</string>
+    <string name="edit_picture">Edit picture</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
 

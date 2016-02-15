@@ -168,6 +168,9 @@ public class LoginActivity extends AppCompatActivity {
             if (authData.getProviderData().containsKey("email")) {
                 map.put("email", authData.getProviderData().get("email").toString());
             }
+            if (authData.getProviderData().containsKey("profileImageURL")) {
+                map.put("pictureUrl", authData.getProviderData().get("profileImageURL").toString());
+            }
             firebaseRef.child("users").child(authData.getUid()).setValue(map);
 
             // Delete all cached data from Realm

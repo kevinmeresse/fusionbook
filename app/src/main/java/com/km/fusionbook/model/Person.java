@@ -15,6 +15,7 @@ public class Person extends RealmObject {
     private String id;
     private String firstname;
     private String lastname;
+    private String pictureUrl;
     private long birthdate;
     private String mobilePhone;
     private String workPhone;
@@ -49,6 +50,14 @@ public class Person extends RealmObject {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
+    }
+
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+
+    public void setPictureUrl(String pictureUrl) {
+        this.pictureUrl = pictureUrl;
     }
 
     public String getAddressZipcode() {
@@ -166,6 +175,7 @@ public class Person extends RealmObject {
             // Update person's details
             person.setFirstname(personToAdd.getFirstname());
             person.setLastname(personToAdd.getLastname());
+            person.setPictureUrl(personToAdd.getPictureUrl());
             person.setBirthdate(personToAdd.getBirthdate());
             person.setMobilePhone(personToAdd.getMobilePhone());
             person.setWorkPhone(personToAdd.getWorkPhone());

@@ -37,13 +37,46 @@
             android:paddingTop="@dimen/activity_vertical_margin"
             android:focusableInTouchMode="true">
 
-            <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/ic_profile_white_80dp"
-                android:tint="@color/text_black_disabled"
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:contentDescription="@string/avatar"/>
+                android:layout_marginBottom="@dimen/activity_vertical_margin">
+
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/ic_profile_white_80dp"
+                    android:tint="@color/text_black_disabled"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/avatar"/>
+
+                <ImageView
+                    android:id="@+id/details_picture"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/avatar"/>
+
+                <ImageView
+                    android:id="@+id/picture_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:src="@drawable/ic_edit_white_18dp"
+                    android:tint="@color/text_black_secondary"
+                    android:contentDescription="@string/edit_picture"/>
+
+                <ProgressBar
+                    android:id="@+id/picture_progress"
+                    style="@style/Widget.AppCompat.ProgressBar"
+                    android:theme="@style/CircularProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone"/>
+
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

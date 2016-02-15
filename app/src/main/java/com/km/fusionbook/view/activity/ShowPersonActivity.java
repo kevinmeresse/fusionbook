@@ -17,12 +17,16 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.firebase.client.Firebase;
 import com.km.fusionbook.R;
 import com.km.fusionbook.model.Person;
+import com.km.fusionbook.util.ImageUtils;
 import com.km.fusionbook.util.Utils;
+import com.km.fusionbook.view.customviews.GlideCircleTransform;
 import com.km.fusionbook.view.customviews.YesNoDialog;
 
 import java.text.DateFormat;
@@ -41,6 +45,7 @@ public class ShowPersonActivity extends AppCompatActivity {
     private TextView mobilePhoneLabel, emailLabel;
     private Button mobilePhoneButton, emailButton;
     private CardView phoneCard, emailCard, addressCard;
+    private ImageView picture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +89,7 @@ public class ShowPersonActivity extends AppCompatActivity {
         phoneCard = (CardView) findViewById(R.id.card_phone);
         emailCard = (CardView) findViewById(R.id.card_email);
         addressCard = (CardView) findViewById(R.id.card_address);
+        picture = (ImageView) findViewById(R.id.details_picture);
         final Button editButton = (Button) findViewById(R.id.edit_button);
         Button deleteButton = (Button) findViewById(R.id.delete_button);
 
@@ -114,10 +120,14 @@ public class ShowPersonActivity extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // Delete person from Firebase (if logged in)
+                                // If logged in
                                 Firebase rootRef = new Firebase(getResources().getString(R.string.firebase_url));
                                 if (rootRef.getAuth() != null) {
+                                    // Delete person from Firebase
                                     rootRef.child("persons").child(rootRef.getAuth().getUid()).child(person.getId()).removeValue();
+                                    // Delete picture from server
+                                    String pictureId = rootRef.getAuth().getUid() + "-" + person.getId();
+                                    ImageUtils.delete(ShowPersonActivity.this, pictureId);
                                 }
 
                                 // Delete person from Realm
@@ -202,6 +212,13 @@ public class ShowPersonActivity extends AppCompatActivity {
             if (actionBar != null) {
                 actionBar.setTitle(fullname);
             }
+            // PICTURE
+            if (!TextUtils.isEmpty(person.getPictureUrl())) {
+                Glide.with(this)
+                        .load(person.getPictureUrl())
+                        .transform(new GlideCircleTransform(this))
+                        .into(picture);
+            }
             // BIRTHDATE
             if (person.getBirthdate() != 0) {
                 birthdate.setText(DateFormat.getDateInstance().format(person.getBirthdate()));
@@ -254,8 +271,10 @@ public class ShowPersonActivity extends AppCompatActivity {
             if (!TextUtils.isEmpty(person.getAddressState())) {
                 addressString.append(person.getAddressState()).append(" \n");
             } else if (!TextUtils.isEmpty(person.getAddressCity())) {
-                addressString.delete(addressString.length() - 2, addressString.length());
-                addressString.append(" \n");
+                if (addressString.length() >= 2) {
+                    addressString.delete(addressString.length() - 2, addressString.length());
+                    addressString.append(" \n");
+                }
             }
             if (!TextUtils.isEmpty(person.getAddressZipcode())) {
                 addressString.append(person.getAddressZipcode()).append(", ");
@@ -263,7 +282,9 @@ public class ShowPersonActivity extends AppCompatActivity {
             if (!TextUtils.isEmpty(person.getAddressCountry())) {
                 addressString.append(person.getAddressCountry());
             } else {
-                addressString.delete(addressString.length() - 2, addressString.length());
+                if (addressString.length() >= 2) {
+                    addressString.delete(addressString.length() - 2, addressString.length());
+                }
             }
             if (!TextUtils.isEmpty(addressString)) {
                 address.setText(addressString);

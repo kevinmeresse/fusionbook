@@ -1,13 +1,16 @@
 package com.km.fusionbook.view.activity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.transition.Slide;
 import android.view.Gravity;
@@ -17,12 +20,20 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 
+import com.bumptech.glide.Glide;
 import com.firebase.client.Firebase;
 import com.km.fusionbook.R;
+import com.km.fusionbook.interfaces.StringCallback;
 import com.km.fusionbook.model.Person;
+import com.km.fusionbook.util.ImageUtils;
 import com.km.fusionbook.view.customviews.DatePickerDialog;
+import com.km.fusionbook.view.customviews.GlideCircleTransform;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,15 +43,21 @@ import io.realm.Realm;
 
 public class EditPersonActivity extends AppCompatActivity {
 
+    private static final int PICK_IMAGE_REQUEST = 1;
+
     private EditText inputFirstname, inputLastname, inputBirthdate, inputMobilePhone, inputCountry,
             inputWorkPhone, inputEmail, inputStreet, inputCity, inputState, inputZipcode;
     private TextInputLayout inputLayoutFirstname, inputLayoutLastname,
             inputLayoutBirthdate, inputLayoutEmail, inputLayoutZipcode;
+    private ImageView picture, editPicture;
+    private ProgressBar pictureProgress;
 
     private Pattern zipcodePattern, emailPattern;
 
     private Realm realm;
+    private Firebase firebaseRef;
     private Person person;
+    private boolean isLoading = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +79,9 @@ public class EditPersonActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
         }
+
+        // Get Firebase reference
+        firebaseRef = new Firebase(getResources().getString(R.string.firebase_url));
 
         // Get the default realm
         realm = Realm.getDefaultInstance();
@@ -85,6 +105,7 @@ public class EditPersonActivity extends AppCompatActivity {
         // Retrieve views
         inputLayoutFirstname = (TextInputLayout) findViewById(R.id.input_layout_firstname);
         inputLayoutLastname = (TextInputLayout) findViewById(R.id.input_layout_lastname);
+        picture = (ImageView) findViewById(R.id.details_picture);
         inputLayoutBirthdate = (TextInputLayout) findViewById(R.id.input_layout_birthdate);
         inputLayoutEmail = (TextInputLayout) findViewById(R.id.input_layout_email);
         inputLayoutZipcode = (TextInputLayout) findViewById(R.id.input_layout_zipcode);
@@ -99,6 +120,8 @@ public class EditPersonActivity extends AppCompatActivity {
         inputState = (EditText) findViewById(R.id.input_state);
         inputZipcode = (EditText) findViewById(R.id.input_zipcode);
         inputCountry = (EditText) findViewById(R.id.input_country);
+        pictureProgress = (ProgressBar) findViewById(R.id.picture_progress);
+        editPicture = (ImageView) findViewById(R.id.picture_edit);
         Button cancelButton = (Button) findViewById(R.id.cancel_button);
         Button saveButton = (Button) findViewById(R.id.save_button);
 
@@ -106,6 +129,12 @@ public class EditPersonActivity extends AppCompatActivity {
         if (person != null) {
             inputFirstname.setText(person.getFirstname());
             inputLastname.setText(person.getLastname());
+            if (!TextUtils.isEmpty(person.getPictureUrl())) {
+                Glide.with(this)
+                        .load(person.getPictureUrl())
+                        .transform(new GlideCircleTransform(this))
+                        .into(picture);
+            }
             if (person.getBirthdate() != 0) {
                 inputBirthdate.setText(DateFormat.getDateInstance().format(person.getBirthdate()));
             }
@@ -138,6 +167,22 @@ public class EditPersonActivity extends AppCompatActivity {
         emailPattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$", Pattern.CASE_INSENSITIVE);
 
         // ACTIONS
+        // Edit picture
+        picture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Edit picture only if logged in as it needs a unique Id to save picture in the cloud
+                if (!isLoading && firebaseRef.getAuth() != null) {
+                    Intent intent = new Intent();
+                    // Show only images, no videos or anything else
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    // Always show the chooser (if there are multiple options available)
+                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+                }
+            }
+        });
+
         // Click on birthdate field
         inputBirthdate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -215,6 +260,56 @@ public class EditPersonActivity extends AppCompatActivity {
     public void onBackPressed() {
         realm.cancelTransaction();
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            if (firebaseRef.getAuth() != null) {
+                loadingPicture(true);
+                String pictureId = firebaseRef.getAuth().getUid() + "-" + person.getId();
+                Uri uri = data.getData();
+                try {
+                    InputStream in = getContentResolver().openInputStream(uri);
+                    ImageUtils.upload(this, in, pictureId, new StringCallback() {
+                        @Override
+                        public void done(String result, Exception e) {
+                            updatePicture(result);
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void updatePicture(final String url) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (url != null) {
+                    person.setPictureUrl(url);
+                    Glide.with(EditPersonActivity.this)
+                            .load(url)
+                            .transform(new GlideCircleTransform(EditPersonActivity.this))
+                            .into(picture);
+                } else {
+                    Snackbar.make(picture, "A problem occurred when uploading picture. Check your Internet connection and try again...", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+                loadingPicture(false);
+            }
+        });
+    }
+
+    private void loadingPicture(boolean isLoading) {
+        this.isLoading = isLoading;
+        pictureProgress.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        editPicture.setVisibility(!isLoading ? View.VISIBLE : View.GONE);
+
     }
 
     private boolean validateFirstname() {
@@ -305,10 +400,9 @@ public class EditPersonActivity extends AppCompatActivity {
         person.setModifiedAt((new Date()).getTime());
 
         // Update person on Firebase (if logged in)
-        Firebase rootRef = new Firebase(getResources().getString(R.string.firebase_url));
-        if (rootRef.getAuth() != null) {
+        if (firebaseRef.getAuth() != null) {
             Firebase personRef =
-                    rootRef.child("persons").child(rootRef.getAuth().getUid()).child(person.getId());
+                    firebaseRef.child("persons").child(firebaseRef.getAuth().getUid()).child(person.getId());
             personRef.setValue(person);
         }
 
