@@ -23,11 +23,14 @@ import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.km.fusionbook.R;
+import com.km.fusionbook.model.Person;
 import com.km.fusionbook.view.customviews.YesNoDialog;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.realm.Realm;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -165,7 +168,20 @@ public class LoginActivity extends AppCompatActivity {
             if (authData.getProviderData().containsKey("email")) {
                 map.put("email", authData.getProviderData().get("email").toString());
             }
+            if (authData.getProviderData().containsKey("profileImageURL")) {
+                map.put("pictureUrl", authData.getProviderData().get("profileImageURL").toString());
+            }
             firebaseRef.child("users").child(authData.getUid()).setValue(map);
+
+            // Delete all cached data from Realm
+            Realm realm = Realm.getDefaultInstance();
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    realm.clear(Person.class);
+                }
+            });
+            realm.close();
 
             // Show home screen
             redirectHome();

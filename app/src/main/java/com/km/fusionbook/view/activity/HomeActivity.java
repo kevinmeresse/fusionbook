@@ -18,8 +18,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.facebook.login.LoginManager;
 import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
@@ -31,6 +33,7 @@ import com.km.fusionbook.interfaces.IDClickListener;
 import com.km.fusionbook.model.Person;
 import com.km.fusionbook.view.adapter.PersonAdapter;
 import com.km.fusionbook.view.adapter.RealmModelAdapter;
+import com.km.fusionbook.view.customviews.GlideCircleTransform;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -84,6 +87,13 @@ public class HomeActivity extends AppCompatActivity
         TextView username = (TextView) navigationView.getHeaderView(0).findViewById(R.id.username);
         if (authData != null && authData.getProviderData().containsKey("displayName")) {
             username.setText(authData.getProviderData().get("displayName").toString());
+            if (authData.getProviderData().containsKey("profileImageURL")) {
+                ImageView avatar = (ImageView) navigationView.getHeaderView(0).findViewById(R.id.avatar);
+                Glide.with(this)
+                        .load(authData.getProviderData().get("profileImageURL").toString())
+                        .transform(new GlideCircleTransform(this))
+                        .into(avatar);
+            }
         } else {
             username.setText(R.string.anonymous);
         }
@@ -121,7 +131,7 @@ public class HomeActivity extends AppCompatActivity
 
     @SuppressWarnings("deprecation")
     private void setupRecyclerView(RecyclerView recyclerView) {
-        adapter = new PersonAdapter(new IDClickListener() {
+        adapter = new PersonAdapter(this, new IDClickListener() {
             @SuppressWarnings("unchecked")
             @Override
             public void onClick(View v, String id, int position) {

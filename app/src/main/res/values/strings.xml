@@ -19,25 +19,40 @@
 
     <!-- SHOW PERSON -->
     <string name="title_activity_show_person">Person\'s details</string>
-    <string name="label_birthdate">Born on:</string>
-    <string name="label_zipcode">Zip-code:</string>
+    <string name="label_phone">Phone</string>
+    <string name="label_mobile">Mobile</string>
+    <string name="label_work">Work</string>
+    <string name="label_email">Email</string>
+    <string name="label_address">Address</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
+    <string name="call">Call</string>
+    <string name="send">Send</string>
+    <string name="see_map">See map</string>
+    <string name="add_phone_number">Add a phone number</string>
+    <string name="add_email">Add an email</string>
 
     <!-- ADD / EDIT PERSON -->
     <string name="title_activity_edit_person">Edit person</string>
     <string name="hint_firstname">Firstname</string>
     <string name="hint_lastname">Lastname</string>
+    <string name="hint_phone_mobile">Mobile phone</string>
+    <string name="hint_phone_work">Work phone</string>
+    <string name="hint_email">Email</string>
     <string name="hint_fullname">Fullname</string>
     <string name="hint_birthdate">Date of Birth</string>
+    <string name="hint_street">Street</string>
+    <string name="hint_state">State</string>
+    <string name="hint_city">City</string>
     <string name="hint_zipcode">Zip-code</string>
-    <string name="err_msg_firstname">Enter your firstname</string>
-    <string name="err_msg_lastname">Enter your lastname</string>
-    <string name="err_msg_birthdate">Enter your date of birth</string>
+    <string name="hint_country">Country</string>
+    <string name="err_msg_firstname">Enter a firstname</string>
+    <string name="err_msg_lastname">Enter a lastname</string>
     <string name="err_msg_birthdate_past">Date of birth should be in the past</string>
-    <string name="err_msg_zipcode">Enter your zip-code</string>
     <string name="err_msg_zipcode_format">Wrong zip-code format</string>
+    <string name="err_msg_email_format">Wrong email format</string>
     <string name="avatar">Avatar</string>
+    <string name="edit_picture">Edit picture</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
 

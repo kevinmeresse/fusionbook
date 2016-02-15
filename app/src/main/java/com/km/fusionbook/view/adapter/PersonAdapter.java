@@ -1,24 +1,30 @@
 package com.km.fusionbook.view.adapter;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.km.fusionbook.R;
 import com.km.fusionbook.interfaces.IDClickListener;
 import com.km.fusionbook.model.Person;
+import com.km.fusionbook.view.customviews.GlideCircleTransform;
 
 public class PersonAdapter extends RealmRecyclerViewAdapter<Person> {
 
+    private Context context;
     private IDClickListener itemClickListener;
 
-    public PersonAdapter(IDClickListener itemClickListener) {
+    public PersonAdapter(Context context, IDClickListener itemClickListener) {
+        this.context = context;
         this.itemClickListener = itemClickListener;
     }
 
@@ -35,6 +41,15 @@ public class PersonAdapter extends RealmRecyclerViewAdapter<Person> {
         final Person person = getItem(position);
         String fullname = person.getFirstname() + " " + person.getLastname();
         eventHolder.fullname.setText(fullname);
+        if (!TextUtils.isEmpty(person.getPictureUrl())) {
+            Glide.with(context)
+                    .load(person.getPictureUrl())
+                    .transform(new GlideCircleTransform(context))
+                    .into(eventHolder.avatar);
+            eventHolder.avatar.setVisibility(View.VISIBLE);
+        } else {
+            eventHolder.avatar.setVisibility(View.GONE);
+        }
         eventHolder.container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
