@@ -16,6 +16,8 @@
     <!-- LIST -->
     <string name="add_person">Add new person</string>
     <string name="list_empty">Click here to add a new person!</string>
+    <string name="search">Search</string>
+    <string name="search_hint">Find contacts</string>
 
     <!-- SHOW PERSON -->
     <string name="title_activity_show_person">Person\'s details</string>
@@ -61,7 +63,10 @@
     <string name="dialog_delete_message">All this person\'s details will be deleted permanently.</string>
     <string name="dialog_discover_title">Really?</string>
     <string name="dialog_discover_message">Your data will only be saved locally. Login to securely save your address book in the cloud and access it on any other device.</string>
+    <string name="dialog_edit_picture_title">Edit picture</string>
+    <string name="dialog_edit_picture_message">You need to be logged in to be able to upload a picture.</string>
     <string name="dialog_ok">Let\'s do it!</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="title_activity_test">TestActivity</string>
 
 </resources>

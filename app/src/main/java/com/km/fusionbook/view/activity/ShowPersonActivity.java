@@ -42,8 +42,7 @@ public class ShowPersonActivity extends AppCompatActivity {
 
     private TextView birthdate, mobilePhone, workPhone, email, address;
     private View mobilePhoneLayout, workPhoneLayout, phoneDividerLayout;
-    private TextView mobilePhoneLabel, emailLabel;
-    private Button mobilePhoneButton, emailButton;
+    private TextView mobilePhoneLabel, emailLabel, mobilePhoneAction, emailAction;
     private CardView phoneCard, emailCard, addressCard;
     private ImageView picture;
 
@@ -84,8 +83,8 @@ public class ShowPersonActivity extends AppCompatActivity {
         phoneDividerLayout = findViewById(R.id.details_phone_divider);
         mobilePhoneLabel = (TextView) findViewById(R.id.label_mobile);
         emailLabel = (TextView) findViewById(R.id.label_email);
-        mobilePhoneButton = (Button) findViewById(R.id.details_phone_mobile_action_button);
-        emailButton = (Button) findViewById(R.id.details_email_action_button);
+        mobilePhoneAction = (TextView) findViewById(R.id.details_phone_mobile_action_label);
+        emailAction = (TextView) findViewById(R.id.details_email_action_label);
         phoneCard = (CardView) findViewById(R.id.card_phone);
         emailCard = (CardView) findViewById(R.id.card_email);
         addressCard = (CardView) findViewById(R.id.card_address);
@@ -234,7 +233,7 @@ public class ShowPersonActivity extends AppCompatActivity {
                 mobilePhone.setText(person.getMobilePhone());
                 mobilePhoneLayout.setVisibility(View.VISIBLE);
                 mobilePhoneLabel.setVisibility(View.VISIBLE);
-                mobilePhoneButton.setVisibility(View.VISIBLE);
+                mobilePhoneAction.setVisibility(View.VISIBLE);
             } else {
                 mobilePhoneLayout.setVisibility(View.GONE);
                 phoneDividerLayout.setVisibility(View.GONE);
@@ -254,7 +253,7 @@ public class ShowPersonActivity extends AppCompatActivity {
                 email.setText(person.getEmail());
                 emailCard.setVisibility(View.VISIBLE);
                 emailLabel.setVisibility(View.VISIBLE);
-                emailButton.setVisibility(View.VISIBLE);
+                emailAction.setVisibility(View.VISIBLE);
                 emailCount++;
             } else {
                 emailCard.setVisibility(View.GONE);
@@ -300,13 +299,13 @@ public class ShowPersonActivity extends AppCompatActivity {
                 // Add phone number
                 mobilePhoneLayout.setVisibility(View.VISIBLE);
                 mobilePhoneLabel.setVisibility(View.GONE);
-                mobilePhoneButton.setVisibility(View.GONE);
+                mobilePhoneAction.setVisibility(View.GONE);
                 mobilePhone.setText(R.string.add_phone_number);
                 phoneCard.setVisibility(View.VISIBLE);
 
                 // Add email
                 emailLabel.setVisibility(View.GONE);
-                emailButton.setVisibility(View.GONE);
+                emailAction.setVisibility(View.GONE);
                 email.setText(R.string.add_email);
                 emailCard.setVisibility(View.VISIBLE);
             }

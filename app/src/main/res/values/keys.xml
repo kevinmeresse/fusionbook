@@ -4,5 +4,6 @@
     <string name="firebase_url">https://fusion-book.firebaseio.com</string>
     <string name="facebook_app_id">1010258439046053</string>
     <string name="cloudinary_url">cloudinary://127579765565178:weLHb3_rRAzRoWF3jjZmuz942O8@dnbndclyk</string>
+    <string name="mixpanel_token">fed82e07be96407e3107fbd9fac96d01</string>
 
 </resources>
