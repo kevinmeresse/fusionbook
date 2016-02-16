@@ -7,6 +7,7 @@
         android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
@@ -64,6 +65,9 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="f9ec907e7d06e35ee706fdccced07d293fa013c4" />
     </application>
 
 </manifest>

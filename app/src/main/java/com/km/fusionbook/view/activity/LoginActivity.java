@@ -24,7 +24,12 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.km.fusionbook.R;
 import com.km.fusionbook.model.Person;
+import com.km.fusionbook.util.Analytics;
 import com.km.fusionbook.view.customviews.YesNoDialog;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -76,6 +81,8 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login);
 
+        Analytics.viewedScreen(getApplicationContext(), "Login");
+
         // Retrieve views
         Button discoverButton = (Button) findViewById(R.id.discover_button);
         LoginButton facebookButton = (LoginButton) findViewById(R.id.facebook_button);
@@ -104,6 +111,7 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         });
                 dialog.show(getSupportFragmentManager(), "dialog");
+                Analytics.action(getApplicationContext(), "Clicked on Discover");
             }
         });
 
@@ -129,6 +137,7 @@ public class LoginActivity extends AppCompatActivity {
         if (token != null) {
             authProgressDialog.show();
             firebaseRef.authWithOAuthToken("facebook", token.getToken(), new AuthResultHandler("facebook"));
+            Analytics.action(getApplicationContext(), "Logged in with Facebook");
         } else {
             // Logged out of Facebook and currently authenticated with Firebase using Facebook, so do a logout
             if (this.authData != null && this.authData.getProvider().equals("facebook")) {

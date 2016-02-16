@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.login.LoginManager;
 import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
@@ -37,6 +38,7 @@ import com.firebase.client.ValueEventListener;
 import com.km.fusionbook.R;
 import com.km.fusionbook.interfaces.IDClickListener;
 import com.km.fusionbook.model.Person;
+import com.km.fusionbook.util.Analytics;
 import com.km.fusionbook.view.adapter.PersonAdapter;
 import com.km.fusionbook.view.adapter.RealmModelAdapter;
 import com.km.fusionbook.view.customviews.GlideCircleTransform;
@@ -84,6 +86,8 @@ public class HomeActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Analytics.viewedScreen(getApplicationContext(), "Home");
+
         // Get Firebase reference
         firebaseRef = new Firebase(getResources().getString(R.string.firebase_url));
         AuthData authData = firebaseRef.getAuth();
@@ -93,6 +97,7 @@ public class HomeActivity extends AppCompatActivity
             @SuppressWarnings("unchecked")
             @Override
             public void onClick(View view) {
+                Analytics.action(getApplicationContext(), "Clicked to add a new person");
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(HomeActivity.this);
                 Intent intent = new Intent(HomeActivity.this, EditPersonActivity.class);
                 ActivityCompat.startActivity(HomeActivity.this, intent, options.toBundle());
@@ -119,8 +124,20 @@ public class HomeActivity extends AppCompatActivity
                         .transform(new GlideCircleTransform(this))
                         .into(avatar);
             }
+
+            // Add user information to Crashlytics
+            try {
+                Crashlytics.setUserIdentifier(authData.getUid());
+                Crashlytics.setUserEmail(authData.getProviderData().get("email").toString());
+                Crashlytics.setUserName(authData.getProviderData().get("displayName").toString());
+            } catch (Exception e) {
+                // Some data could not be retrieved from Auth data
+                // Do nothing
+            }
         } else {
             username.setText(R.string.anonymous);
+            // Add user information to Crashlytics
+            Crashlytics.setUserName(getString(R.string.anonymous));
         }
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -278,6 +295,8 @@ public class HomeActivity extends AppCompatActivity
     private void logout() {
         AuthData authData = firebaseRef.getAuth();
         if (authData != null) {
+            Analytics.action(getApplicationContext(), "Logout");
+
             // Logout from Firebase
             firebaseRef.unauth();
 
