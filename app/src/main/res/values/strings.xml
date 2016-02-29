@@ -4,6 +4,7 @@
     <!-- LOGIN -->
     <string name="discover">Discover</string>
     <string name="login_with_facebook">Login with Facebook</string>
+    <string name="auth_provider_facebook">facebook</string>
 
     <!-- NAVIGATION DRAWER -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -57,6 +58,7 @@
     <string name="edit_picture">Edit picture</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
+    <string name="select_picture">Select picture</string>
 
     <!-- DIALOGS -->
     <string name="dialog_delete_title">Delete this person?</string>
@@ -67,6 +69,24 @@
     <string name="dialog_edit_picture_message">You need to be logged in to be able to upload a picture.</string>
     <string name="dialog_ok">Let\'s do it!</string>
     <string name="dialog_cancel">Cancel</string>
-    <string name="title_activity_test">TestActivity</string>
+    <string name="dialog_error">Error!</string>
+    <string name="dialog_connection_message">Unable to connect. Check your Internet connection and try again…</string>
+    <string name="dialog_connection_load_message">Unable to load data from server. Check your Internet connection and try again…</string>
+    <string name="dialog_connection_upload_message">Unable to upload picture to server. Check your Internet connection and try again…</string>
+    <string name="dialog_connection_picture_message">Unable to load picture. Check your Internet connection and try again…</string>
+    <string name="dialog_loading">Loading</string>
+    <string name="dialog_authenticating">Authenticating…</string>
+    <string name="dialog_error_capture_image">Ooops, your device doesn\'t support capturing images!</string>
+    <string name="dialog_error_create_file">A problem occurred while trying to create a file…</string>
+    <string name="dialog_error_select_image">Ooops, your device doesn\'t support selecting images!</string>
+    <string name="dialog_error_crop_image">Ooops, your device doesn\'t support cropping images!</string>
+
+    <!-- ANALYTICS -->
+    <string name="analytics_screen_login">Login</string>
+    <string name="analytics_screen_home">Home</string>
+    <string name="analytics_action_click_discover">Clicked on Discover</string>
+    <string name="analytics_action_login_facebook">Logged in with Facebook</string>
+    <string name="analytics_action_click_add_person">Clicked to add a new person</string>
+    <string name="analytics_action_logout">Logout</string>
 
 </resources>

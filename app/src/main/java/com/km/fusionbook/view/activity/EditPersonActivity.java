@@ -1,9 +1,11 @@
 package com.km.fusionbook.view.activity;
 
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBar;
@@ -32,8 +34,10 @@ import com.km.fusionbook.model.Person;
 import com.km.fusionbook.util.ImageUtils;
 import com.km.fusionbook.view.customviews.DatePickerDialog;
 import com.km.fusionbook.view.customviews.GlideCircleTransform;
+import com.km.fusionbook.view.customviews.ListDialog;
 import com.km.fusionbook.view.customviews.YesNoDialog;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -45,8 +49,17 @@ import io.realm.Realm;
 
 public class EditPersonActivity extends AppCompatActivity {
 
-    private static final int PICK_IMAGE_REQUEST = 1;
+    // Activity result codes
+    private static final int REQUEST_IMAGE_PICK = 1;
+    private static final int REQUEST_IMAGE_CAPTURE = 2;
+    private static final int REQUEST_IMAGE_CROP = 3;
 
+    // Class data
+    private Person person;
+    private boolean isLoading = false;
+    private Uri photoUri = null;
+
+    // Layout views
     private EditText inputFirstname, inputLastname, inputBirthdate, inputMobilePhone, inputCountry,
             inputWorkPhone, inputEmail, inputStreet, inputCity, inputState, inputZipcode;
     private TextInputLayout inputLayoutFirstname, inputLayoutLastname,
@@ -54,15 +67,19 @@ public class EditPersonActivity extends AppCompatActivity {
     private ImageView picture, editPicture;
     private ProgressBar pictureProgress;
 
+    // Utils
     private Pattern zipcodePattern, emailPattern;
 
+    // Realm reference
     private Realm realm;
+
+    // Firebase reference
     private Firebase firebaseRef;
-    private Person person;
-    private boolean isLoading = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // Set up transitions for Lollipop and after
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             try {
                 getWindow().setEnterTransition(new Slide(Gravity.BOTTOM));
@@ -74,6 +91,8 @@ public class EditPersonActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_person);
+
+        // Set up toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -94,6 +113,7 @@ public class EditPersonActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String personId = intent.getStringExtra(Person.EXTRA_PERSON_ID);
 
+        // Get person object from Realm
         try {
             person = realm
                     .where(Person.class)
@@ -175,12 +195,59 @@ public class EditPersonActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Edit picture only if logged in as it needs a unique Id to save picture in the cloud
                 if (!isLoading && firebaseRef.getAuth() != null) {
-                    Intent intent = new Intent();
-                    // Show only images, no videos or anything else
-                    intent.setType("image/*");
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
-                    // Always show the chooser (if there are multiple options available)
-                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+                    ListDialog dialog = ListDialog.newInstance(
+                            TextUtils.isEmpty(person.getPictureUrl()) ? R.array.choose_picture : R.array.change_picture,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which) {
+                                        case 0: // Take photo
+                                            try {
+                                                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                                                    // Create the File where the photo should go
+                                                    File photoFile = ImageUtils.createImageFile();
+                                                    photoUri = Uri.fromFile(photoFile);
+                                                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                                                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                                                }
+                                            } catch (ActivityNotFoundException e) {
+                                                // No camera app found
+                                                Snackbar.make(picture, R.string.dialog_error_capture_image, Snackbar.LENGTH_LONG)
+                                                        .setAction("Action", null).show();
+                                            } catch (IOException ex) {
+                                                // Error occurred while creating the File
+                                                Snackbar.make(picture, R.string.dialog_error_create_file, Snackbar.LENGTH_LONG)
+                                                        .setAction("Action", null).show();
+                                            }
+                                            break;
+                                        case 1: // Choose picture
+                                            try {
+                                                Intent intent = new Intent();
+                                                // Show only images, no videos or anything else
+                                                intent.setType("image/*");
+                                                intent.setAction(Intent.ACTION_GET_CONTENT);
+                                                // Always show the chooser (if there are multiple options available)
+                                                startActivityForResult(
+                                                        Intent.createChooser(intent, getString(R.string.select_picture)),
+                                                        REQUEST_IMAGE_PICK);
+                                            } catch (ActivityNotFoundException e) {
+                                                // No gallery app found
+                                                Snackbar.make(picture, R.string.dialog_error_select_image, Snackbar.LENGTH_LONG)
+                                                        .setAction("Action", null).show();
+                                            }
+                                            break;
+                                        default: // Remove picture
+                                            picture.setImageDrawable(null);
+                                            person.setPictureUrl(null);
+                                            // Delete picture from server
+                                            String pictureId = firebaseRef.getAuth().getUid() + "-" + person.getId();
+                                            ImageUtils.delete(EditPersonActivity.this, pictureId);
+                                            break;
+                                    }
+                                }
+                            });
+                    dialog.show(getSupportFragmentManager(), "dialog");
                 } else {
                     YesNoDialog dialog = YesNoDialog.newInstance(
                             R.string.dialog_edit_picture_title,
@@ -283,26 +350,83 @@ public class EditPersonActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            if (firebaseRef.getAuth() != null) {
-                loadingPicture(true);
-                String pictureId = firebaseRef.getAuth().getUid() + "-" + person.getId();
-                Uri uri = data.getData();
-                try {
-                    InputStream in = getContentResolver().openInputStream(uri);
-                    ImageUtils.upload(this, in, pictureId, new StringCallback() {
-                        @Override
-                        public void done(String result, Exception e) {
-                            updatePicture(result);
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        if (requestCode == REQUEST_IMAGE_PICK && resultCode == RESULT_OK
+                && data != null && data.getData() != null) {
+            photoUri = data.getData();
+            cropImageAndUpload(photoUri);
+        } else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK
+                && photoUri != null) {
+            cropImageAndUpload(photoUri);
+        } else if (requestCode == REQUEST_IMAGE_CROP && resultCode == RESULT_OK
+                && photoUri != null) {
+            startImageUpload(photoUri);
         }
     }
 
+    /**
+     * Crops image and upload to server
+     * @param imageUri URI of image
+     */
+    private void cropImageAndUpload(Uri imageUri) {
+        try {
+            //call the standard crop action intent (the user device may not support it)
+            Intent cropIntent = new Intent("com.android.camera.action.CROP");
+            //indicate image type and Uri
+            cropIntent.setDataAndType(imageUri, "image/*");
+            //set crop properties
+            cropIntent.putExtra("crop", "true");
+            //indicate aspect of desired crop
+            cropIntent.putExtra("aspectX", 1);
+            cropIntent.putExtra("aspectY", 1);
+            //indicate output X and Y
+            cropIntent.putExtra("outputX", 512);
+            cropIntent.putExtra("outputY", 512);
+            //retrieve data on return
+            cropIntent.putExtra("return-data", true);
+            //start the activity - we handle returning in onActivityResult
+            startActivityForResult(cropIntent, REQUEST_IMAGE_CROP);
+        } catch (ActivityNotFoundException e) {
+            // Display an error message
+            Snackbar.make(picture, R.string.dialog_error_crop_image, Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+            // Upload uncropped image
+            startImageUpload(imageUri);
+        }
+    }
+
+    /**
+     * Uploads image to server
+     * @param imageUri URI of image to upload
+     */
+    private void startImageUpload(Uri imageUri) {
+        if (firebaseRef != null && firebaseRef.getAuth() != null
+                && person != null && imageUri != null) {
+            try {
+                loadingPicture(true);
+                String pictureId = firebaseRef.getAuth().getUid() + "-" + person.getId();
+                InputStream in = getContentResolver().openInputStream(imageUri);
+                ImageUtils.upload(this, in, pictureId, new StringCallback() {
+                    @Override
+                    public void done(String result, Exception e) {
+                        updatePicture(result);
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+                loadingPicture(false);
+                Snackbar.make(picture, R.string.dialog_connection_upload_message, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        } else {
+            Snackbar.make(picture, R.string.dialog_connection_upload_message, Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        }
+    }
+
+    /**
+     * Update picture view
+     * @param url URL of picture to display
+     */
     private void updatePicture(final String url) {
         runOnUiThread(new Runnable() {
             @Override
@@ -314,7 +438,7 @@ public class EditPersonActivity extends AppCompatActivity {
                             .transform(new GlideCircleTransform(EditPersonActivity.this))
                             .into(picture);
                 } else {
-                    Snackbar.make(picture, "A problem occurred when uploading picture. Check your Internet connection and try again...", Snackbar.LENGTH_LONG)
+                    Snackbar.make(picture, R.string.dialog_connection_picture_message, Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }
                 loadingPicture(false);
@@ -322,6 +446,10 @@ public class EditPersonActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Show or hide a progress bar for loading picture
+     * @param isLoading True if picture is loading
+     */
     private void loadingPicture(boolean isLoading) {
         this.isLoading = isLoading;
         pictureProgress.setVisibility(isLoading ? View.VISIBLE : View.GONE);
@@ -329,6 +457,10 @@ public class EditPersonActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Validates the firstname format
+     * @return True if field is valid
+     */
     private boolean validateFirstname() {
         if (inputFirstname.getText().toString().trim().isEmpty()) {
             inputLayoutFirstname.setError(getString(R.string.err_msg_firstname));
@@ -341,6 +473,10 @@ public class EditPersonActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Validates the lastname format
+     * @return True if field is valid
+     */
     private boolean validateLastname() {
         if (inputLastname.getText().toString().trim().isEmpty()) {
             inputLayoutLastname.setError(getString(R.string.err_msg_lastname));
@@ -353,6 +489,10 @@ public class EditPersonActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Validates the birthdate format
+     * @return True if field is valid
+     */
     private boolean validateBirthdate() {
         if (person.getBirthdate() > (new Date()).getTime()) {
             inputLayoutBirthdate.setError(getString(R.string.err_msg_birthdate_past));
@@ -364,6 +504,10 @@ public class EditPersonActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Validates the zipcode format
+     * @return True if field is valid
+     */
     private boolean validateZipcode() {
         String content = inputZipcode.getText().toString().trim();
         if (!content.isEmpty() && !zipcodePattern.matcher(content).matches()) {
@@ -377,6 +521,10 @@ public class EditPersonActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Validates the email format
+     * @return True if field is valid
+     */
     private boolean validateEmail() {
         String content = inputEmail.getText().toString().trim();
         if (!content.isEmpty() && !emailPattern.matcher(content).matches()) {
@@ -390,12 +538,19 @@ public class EditPersonActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Tries to focus on a specific view in the layout
+     * @param view The view to focus to
+     */
     private void requestFocus(View view) {
         if (view.requestFocus()) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
     }
 
+    /**
+     * Submits the form if all the fields are valid
+     */
     private void submitForm() {
         // Validate form
         if (!validateFirstname() || !validateLastname() || !validateEmail()
@@ -435,6 +590,10 @@ public class EditPersonActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * When this object is attached to an Editable, its methods will
+     * be called when the text is changed
+     */
     private class MyTextWatcher implements TextWatcher {
 
         private View view;

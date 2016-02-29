@@ -8,6 +8,9 @@ import android.support.v4.app.DialogFragment;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * A dialog to choose a date
+ */
 public class DatePickerDialog  extends DialogFragment {
 
     private android.app.DatePickerDialog.OnDateSetListener listener;

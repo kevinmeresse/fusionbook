@@ -18,6 +18,9 @@ import android.widget.Button;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
@@ -26,10 +29,6 @@ import com.km.fusionbook.R;
 import com.km.fusionbook.model.Person;
 import com.km.fusionbook.util.Analytics;
 import com.km.fusionbook.view.customviews.YesNoDialog;
-import com.mixpanel.android.mpmetrics.MixpanelAPI;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,7 +38,9 @@ import io.realm.Realm;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String TAG = LoginActivity.class.getSimpleName();
+    public static final String TAG = LoginActivity.class.getSimpleName();
+
+    // Layout views
     private ProgressDialog authProgressDialog;
 
     // Firebase stuff
@@ -53,6 +54,8 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // Set up transitions for Lollipop and after
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             try {
                 getWindow().setReenterTransition(new Slide(Gravity.TOP));
@@ -64,10 +67,10 @@ public class LoginActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        /* Create the Firebase ref that is used for all authentication with Firebase */
+        // Create the Firebase reference that is used for all authentication with Firebase
         firebaseRef = new Firebase(getResources().getString(R.string.firebase_url));
 
-        // If user is logged in, redirect to HomeActivity
+        // If user is already logged in, clear all tasks and redirect to HomeActivity
         if (firebaseRef.getAuth() != null) {
             Intent intent = new Intent(this, HomeActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -81,15 +84,31 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login);
 
-        Analytics.viewedScreen(getApplicationContext(), "Login");
+        // Analytics log
+        Analytics.viewedScreen(getApplicationContext(), R.string.analytics_screen_login);
 
-        // Retrieve views
+        // Retrieve layout views
         Button discoverButton = (Button) findViewById(R.id.discover_button);
         LoginButton facebookButton = (LoginButton) findViewById(R.id.facebook_button);
 
-        // Request Facebook permissions and set up tracker to monitor access token changes
+        /* FACEBOOK */
+        // Request FB permissions
         facebookButton.setReadPermissions(Arrays.asList("public_profile", "email"));
+        // Create callback manager and handle connection errors
         facebookCallbackManager = CallbackManager.Factory.create();
+        facebookButton.registerCallback(facebookCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {}
+
+            @Override
+            public void onCancel() {}
+
+            @Override
+            public void onError(FacebookException error) {
+                showErrorDialog(getString(R.string.dialog_connection_message));
+            }
+        });
+        // Set up tracker to monitor access token changes
         facebookAccessTokenTracker = new AccessTokenTracker() {
             @Override
             protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
@@ -97,6 +116,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
 
+        // If discovering, show dialog to inform about login benefits
         discoverButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,14 +131,15 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         });
                 dialog.show(getSupportFragmentManager(), "dialog");
-                Analytics.action(getApplicationContext(), "Clicked on Discover");
+                // Analytics log
+                Analytics.action(getApplicationContext(), R.string.analytics_action_click_discover);
             }
         });
 
-        // Setup the progress dialog that is displayed later when authenticating with Firebase
+        // Setup the progress dialog that is displayed later when authenticating
         authProgressDialog = new ProgressDialog(this);
-        authProgressDialog.setTitle("Loading");
-        authProgressDialog.setMessage("Authenticating with Firebase...");
+        authProgressDialog.setTitle(getString(R.string.dialog_loading));
+        authProgressDialog.setMessage(getString(R.string.dialog_authenticating));
         authProgressDialog.setCancelable(false);
         authProgressDialog.show();
 
@@ -133,14 +154,21 @@ public class LoginActivity extends AppCompatActivity {
         firebaseRef.addAuthStateListener(authStateListener);
     }
 
+    /**
+     * Called when Facebook access token has changed
+     * @param token Access token from Facebook
+     */
     private void onFacebookAccessTokenChange(AccessToken token) {
         if (token != null) {
             authProgressDialog.show();
-            firebaseRef.authWithOAuthToken("facebook", token.getToken(), new AuthResultHandler("facebook"));
-            Analytics.action(getApplicationContext(), "Logged in with Facebook");
+            firebaseRef.authWithOAuthToken(getString(R.string.auth_provider_facebook),
+                    token.getToken(),
+                    new AuthResultHandler(getString(R.string.auth_provider_facebook)));
+            Analytics.action(getApplicationContext(), R.string.analytics_action_login_facebook);
         } else {
             // Logged out of Facebook and currently authenticated with Firebase using Facebook, so do a logout
-            if (this.authData != null && this.authData.getProvider().equals("facebook")) {
+            if (this.authData != null
+                    && this.authData.getProvider().equals(getString(R.string.auth_provider_facebook))) {
                 firebaseRef.unauth();
                 setAuthenticatedUser(null);
             }
@@ -155,7 +183,7 @@ public class LoginActivity extends AppCompatActivity {
             facebookAccessTokenTracker.stopTracking();
         }
 
-        // If changing configurations, stop tracking firebase session
+        // If changing configurations, stop tracking Firebase session
         firebaseRef.removeAuthStateListener(authStateListener);
     }
 
@@ -166,6 +194,10 @@ public class LoginActivity extends AppCompatActivity {
         facebookCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
+    /**
+     * Called after Firebase authentication
+     * @param authData Authenticated user data from Firebase
+     */
     private void setAuthenticatedUser(AuthData authData) {
         if (authData != null) {
             // Save user in Firebase
@@ -200,14 +232,19 @@ public class LoginActivity extends AppCompatActivity {
 
     @SuppressWarnings("unchecked")
     private void redirectHome() {
-        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(LoginActivity.this);
         Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-        ActivityCompat.startActivity(LoginActivity.this, intent, options.toBundle());
+        // No transition animation as we are automatically redirected
+        // and it would throw an error in Android 6.0
+        ActivityCompat.startActivity(LoginActivity.this, intent, null);
     }
 
+    /**
+     * Shows an alert dialog with a custom message
+     * @param message The message to be displayed
+     */
     private void showErrorDialog(String message) {
         new AlertDialog.Builder(this)
-                .setTitle("Error")
+                .setTitle(R.string.dialog_error)
                 .setMessage(message)
                 .setPositiveButton(android.R.string.ok, null)
                 .setIcon(android.R.drawable.ic_dialog_alert)

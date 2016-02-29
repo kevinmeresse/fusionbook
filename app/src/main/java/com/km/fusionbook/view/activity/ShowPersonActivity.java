@@ -35,19 +35,25 @@ import io.realm.Realm;
 
 public class ShowPersonActivity extends AppCompatActivity {
 
-    private Realm realm;
+    // Class data
     private String personId;
     private Person person;
     private boolean emptyScreen = false;
 
-    private TextView birthdate, mobilePhone, workPhone, email, address;
+    // Realm reference
+    private Realm realm;
+
+    // Layout views
+    private TextView birthdate, mobilePhone, workPhone, email, address,
+            mobilePhoneLabel, emailLabel, mobilePhoneAction, emailAction;
     private View mobilePhoneLayout, workPhoneLayout, phoneDividerLayout;
-    private TextView mobilePhoneLabel, emailLabel, mobilePhoneAction, emailAction;
     private CardView phoneCard, emailCard, addressCard;
     private ImageView picture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // Set up transitions for Lollipop and after
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             try {
                 getWindow().setEnterTransition(new Slide(Gravity.END));
@@ -59,6 +65,8 @@ public class ShowPersonActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_person);
+
+        // Set up toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -217,6 +225,8 @@ public class ShowPersonActivity extends AppCompatActivity {
                         .load(person.getPictureUrl())
                         .transform(new GlideCircleTransform(this))
                         .into(picture);
+            } else {
+                picture.setImageDrawable(null);
             }
             // BIRTHDATE
             if (person.getBirthdate() != 0) {

@@ -8,6 +8,10 @@ import io.realm.RealmBaseAdapter;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 
+/**
+ * A Realm base adapter
+ * @param <T> The type of the object to be adapted
+ */
 public class RealmModelAdapter<T extends RealmObject> extends RealmBaseAdapter<T> {
 
     public RealmModelAdapter(Context context, RealmResults<T> realmResults, boolean automaticUpdate) {

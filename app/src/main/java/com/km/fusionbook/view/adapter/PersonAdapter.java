@@ -22,6 +22,9 @@ import com.km.fusionbook.interfaces.IDClickListener;
 import com.km.fusionbook.model.Person;
 import com.km.fusionbook.view.customviews.GlideCircleTransform;
 
+/**
+ * An adapter to show a person's details in a recyclerview
+ */
 public class PersonAdapter extends RealmRecyclerViewAdapter<Person> {
 
     private Context context;

@@ -7,14 +7,16 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
 
+/**
+ * Utility class
+ */
 public class Utils {
 
-    public static String removeLastChars(String str, int charCount) {
-        if (str != null && str.length() >= charCount)
-            return str.substring(0, str.length() - charCount);
-        return str;
-    }
-
+    /**
+     * Send an intent to call a number
+     * @param context The current context
+     * @param number The phone number to be called
+     */
     public static void callPhoneNumber(Context context, String number) {
         if (ActivityCompat.checkSelfPermission(context,
                 Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
@@ -24,6 +26,11 @@ public class Utils {
         }
     }
 
+    /**
+     * Send an intent to write an email
+     * @param context The current context
+     * @param addresses An array of email addresses
+     */
     public static void writeEmail(Context context, String[] addresses) {
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("mailto:")); // only email apps should handle this
@@ -33,6 +40,11 @@ public class Utils {
         }
     }
 
+    /**
+     * Send an intent to find a location on the map
+     * @param context The current context
+     * @param address The address to search
+     */
     public static void seeLocationOnMaps(Context context, String address) {
         Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + address);
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
