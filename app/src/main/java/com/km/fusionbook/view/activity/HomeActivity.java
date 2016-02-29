@@ -52,6 +52,9 @@ import io.realm.Sort;
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static final String TAG = LoginActivity.class.getSimpleName();
+
+    // Layout views
     private PersonAdapter adapter;
     private View emptyView;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -83,34 +86,39 @@ public class HomeActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book);
+
+        // Set up toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Analytics.viewedScreen(getApplicationContext(), "Home");
+        // Analytics log
+        Analytics.viewedScreen(getApplicationContext(), R.string.analytics_screen_home);
 
         // Get Firebase reference
         firebaseRef = new Firebase(getResources().getString(R.string.firebase_url));
         AuthData authData = firebaseRef.getAuth();
 
+        // Set up floating ADD button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @SuppressWarnings("unchecked")
             @Override
             public void onClick(View view) {
-                Analytics.action(getApplicationContext(), "Clicked to add a new person");
+                Analytics.action(getApplicationContext(), R.string.analytics_action_click_add_person);
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(HomeActivity.this);
                 Intent intent = new Intent(HomeActivity.this, EditPersonActivity.class);
                 ActivityCompat.startActivity(HomeActivity.this, intent, options.toBundle());
             }
         });
 
+        // Set up drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        // Setup Navigation View
+        // Set up Navigation View
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.getMenu().findItem(R.id.nav_login).setVisible(authData == null);
         navigationView.getMenu().findItem(R.id.nav_logout).setVisible(authData != null);
@@ -154,7 +162,7 @@ public class HomeActivity extends AppCompatActivity
         // Get the default realm
         realm = Realm.getDefaultInstance();
 
-        // Set up list of persons
+        // Set up recyclerview holding the list of persons
         RecyclerView rv = (RecyclerView) findViewById(R.id.recyclerview);
         emptyView = findViewById(R.id.empty_view);
         setupRecyclerView(rv);
@@ -190,12 +198,17 @@ public class HomeActivity extends AppCompatActivity
         updateList(null);
     }
 
+    /**
+     * Updates the list of person based on local data, with an optional text filter
+     * @param textToSearch Text to filter list
+     */
     private void updateList(String textToSearch) {
         RealmQuery<Person> query = realm.where(Person.class);
         if (!TextUtils.isEmpty(textToSearch)) {
             String[] texts = textToSearch.trim().split(" ");
             for (String text : texts) {
                 query.beginGroup();
+                // For now we only search on firstname and lastname
                 query.beginsWith("firstname", text, Case.INSENSITIVE);
                 query.or().beginsWith("lastname", text, Case.INSENSITIVE);
                 query.endGroup();
@@ -210,6 +223,9 @@ public class HomeActivity extends AppCompatActivity
         showOrHideEmptyView();
     }
 
+    /**
+     * Refresh local data with latest changes from server
+     */
     private void refreshData() {
         // Retrieve data from Firebase and update local database (if logged in)
         if (firebaseRef.getAuth() != null) {
@@ -227,7 +243,7 @@ public class HomeActivity extends AppCompatActivity
 
                 @Override
                 public void onCancelled(FirebaseError firebaseError) {
-                    Snackbar.make(emptyView, "Unable to load data from server. Check your Internet connection and try again...", Snackbar.LENGTH_LONG)
+                    Snackbar.make(emptyView, R.string.dialog_connection_load_message, Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                     swipeRefreshLayout.setRefreshing(false);
                 }
@@ -237,6 +253,9 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Toggles empty view depending on Realm result
+     */
     private void showOrHideEmptyView() {
         try {
             if (result != null && result.size() == 0) {
@@ -245,7 +264,7 @@ public class HomeActivity extends AppCompatActivity
                 emptyView.setVisibility(View.GONE);
             }
         } catch (IllegalStateException e) {
-            Log.e("Realm Error", "Realm results no longer available. " + e.getMessage());
+            Log.e(TAG, "Realm error: Realm results no longer available. " + e.getMessage());
         }
     }
 
@@ -271,7 +290,7 @@ public class HomeActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+        // Handle navigation view item clicks
         int id = item.getItemId();
 
         if (id == R.id.nav_login) {
@@ -295,13 +314,13 @@ public class HomeActivity extends AppCompatActivity
     private void logout() {
         AuthData authData = firebaseRef.getAuth();
         if (authData != null) {
-            Analytics.action(getApplicationContext(), "Logout");
+            Analytics.action(getApplicationContext(), R.string.analytics_action_logout);
 
             // Logout from Firebase
             firebaseRef.unauth();
 
             // Logout from Facebook
-            if (authData.getProvider().equals("facebook")) {
+            if (authData.getProvider().equals(getString(R.string.auth_provider_facebook))) {
                 LoginManager.getInstance().logOut();
             }
 

@@ -9,6 +9,9 @@ import android.support.v4.app.DialogFragment;
 
 import com.km.fusionbook.R;
 
+/**
+ * A simple dialog with a message and two buttons
+ */
 public class YesNoDialog extends DialogFragment {
 
     private DialogInterface.OnClickListener positiveListener;

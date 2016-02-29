@@ -7,6 +7,9 @@ import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
 import com.km.fusionbook.util.ImageUtils;
 
+/**
+ * A BitmapTransofrmation allowing to create circle images
+ */
 public class GlideCircleTransform extends BitmapTransformation {
 
     public GlideCircleTransform(Context context) {

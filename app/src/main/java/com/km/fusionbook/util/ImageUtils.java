@@ -5,21 +5,31 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.net.Uri;
+import android.os.Environment;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.km.fusionbook.R;
 import com.km.fusionbook.interfaces.StringCallback;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Utility class for image processing
+ */
 public class ImageUtils {
 
+    /**
+     * Transforms an image to be circular
+     * @param source The image to process
+     * @return The same image with a circle shape
+     */
     public static Bitmap getCircularBitmapImage(Bitmap source) {
         int size = Math.min(source.getWidth(), source.getHeight());
         int x = (source.getWidth() - size) / 2;
@@ -40,6 +50,13 @@ public class ImageUtils {
         return bitmap;
     }
 
+    /**
+     * Uploads an image to Cloudinary
+     * @param context The current context
+     * @param inputStream The stream for the image to upload
+     * @param pictureId The unique ID for the saved image
+     * @param callback A callback to execute some logic when upload is done
+     */
     public static void upload(Context context, final InputStream inputStream, final String pictureId, final StringCallback callback) {
 
         final Cloudinary cloudinary = new Cloudinary(context.getString(R.string.cloudinary_url));
@@ -71,6 +88,11 @@ public class ImageUtils {
         new Thread(runnable).start();
     }
 
+    /**
+     * Deletes a specific image from Cloudinary
+     * @param context The current context
+     * @param pictureId The unique ID of the image to delete
+     */
     public static void delete(Context context, final String pictureId) {
 
         final Cloudinary cloudinary = new Cloudinary(context.getString(R.string.cloudinary_url));
@@ -87,5 +109,24 @@ public class ImageUtils {
         };
 
         new Thread(runnable).start();
+    }
+
+    /**
+     * Creates a file to save an image
+     * @return The created file
+     * @throws IOException If unable to create file on the filesystem
+     */
+    public static File createImageFile() throws IOException {
+        // Create the file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        // Create the actual file
+        return File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
     }
 }

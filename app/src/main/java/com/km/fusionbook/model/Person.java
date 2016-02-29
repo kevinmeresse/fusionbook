@@ -148,6 +148,10 @@ public class Person extends RealmObject {
         this.addressCountry = addressCountry;
     }
 
+    /**
+     * Adds or updates a person object in Realm database
+     * @param personToAdd The instance of Person to be added or updated
+     */
     static public void addToRealm(Person personToAdd) {
         if (personToAdd != null && personToAdd.getId() != null) {
             // Get the default realm
