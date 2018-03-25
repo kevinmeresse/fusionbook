@@ -2,8 +2,10 @@ package com.km.fusionbook.view.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -25,6 +27,7 @@ import com.firebase.client.Firebase;
 import com.km.fusionbook.R;
 import com.km.fusionbook.model.Person;
 import com.km.fusionbook.util.ImageUtils;
+import com.km.fusionbook.util.PermissionUtils;
 import com.km.fusionbook.util.Utils;
 import com.km.fusionbook.view.customviews.GlideCircleTransform;
 import com.km.fusionbook.view.customviews.YesNoDialog;
@@ -39,6 +42,7 @@ public class ShowPersonActivity extends AppCompatActivity {
     private String personId;
     private Person person;
     private boolean emptyScreen = false;
+    private String clickedPhoneNumber;
 
     // Realm reference
     private Realm realm;
@@ -164,14 +168,14 @@ public class ShowPersonActivity extends AppCompatActivity {
                 if (emptyScreen) {
                     editButton.callOnClick();
                 } else {
-                    Utils.callPhoneNumber(ShowPersonActivity.this, mobilePhone.getText().toString());
+                    tryToCall(mobilePhone.getText().toString());
                 }
             }
         });
         workPhoneLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Utils.callPhoneNumber(ShowPersonActivity.this, workPhone.getText().toString());
+                tryToCall(workPhone.getText().toString());
             }
         });
 
@@ -195,6 +199,21 @@ public class ShowPersonActivity extends AppCompatActivity {
                 Utils.seeLocationOnMaps(ShowPersonActivity.this, address.getText().toString());
             }
         });
+    }
+
+    private void tryToCall(String phoneNumber) {
+        if (!TextUtils.isEmpty(phoneNumber)) {
+
+            // Save number to automatically call when permission is granted
+            clickedPhoneNumber = phoneNumber;
+
+            // Check permission
+            if (PermissionUtils.isPhoneCallGranted(this)) {
+                Utils.callPhoneNumber(this, clickedPhoneNumber);
+            } else {
+                PermissionUtils.requestPhoneCallPermission(this);
+            }
+        }
     }
 
     @Override
@@ -341,5 +360,19 @@ public class ShowPersonActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode){
+            case PermissionUtils.PERMISSION_REQUEST_CALL:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        && !TextUtils.isEmpty(clickedPhoneNumber)) {
+                    Utils.callPhoneNumber(ShowPersonActivity.this, clickedPhoneNumber);
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 }
